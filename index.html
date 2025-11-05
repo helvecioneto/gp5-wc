@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GP‑5 USB‑MIDI Tester (Mobile)</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; 
+         margin: 14px; background:#0f1115; color:#eaeef2; }
+  h1 { font-size: 1.2rem; margin: 0 0 12px 0; }
+  fieldset { border:1px solid #2a2f3a; border-radius:12px; padding:16px; margin-bottom:14px; background:#141821; }
+  legend { padding:0 8px; color:#9fb3c8; font-weight:600; font-size:0.95rem; }
+  label { display:block; margin:6px 0 4px; font-size:0.9rem; color:#c8d4e3; }
+  select, input[type="number"], input[type="text"] { width: 100%; padding:10px; border-radius:10px; border:1px solid #2a2f3a; background:#141821; color:#eaeef2; }
+  .row { display:flex; gap:8px; }
+  .row > * { flex:1; }
+  button { padding:10px 12px; border-radius:12px; border:1px solid #2a2f3a; background:#1b2130; color:#eaeef2; cursor:pointer; transition:all .2s ease; }
+  button:hover:not(:disabled) { background:#252d3f; border-color:#3a4458; transform:translateY(-1px); }
+  button.primary { background:#0ea36e; border-color:#0ea36e; color:white; }
+  button.primary:hover:not(:disabled) { background:#0c8a5a; }
+  button:disabled { opacity:.6; cursor:not-allowed; }
+  .btnbar { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .grid { display:grid; gap:8px; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 480px) { .grid { grid-template-columns: repeat(3, 1fr);} }
+  @media (min-width: 768px) { .grid { grid-template-columns: repeat(5, 1fr);} }
+  pre { background:#0b0e14; border:1px solid #2a2f3a; border-radius:12px; padding:10px; max-height:40vh; overflow:auto; }
+  small { color:#9fb3c8; }
+  .pill { padding:2px 8px; border-radius:999px; background:#20283a; color:#cfe7dc; font-size:.72rem; }
+  .range-row { display:flex; align-items:center; gap:10px; }
+  .range-row input[type="range"] { flex:1; accent-color:#10b981; }
+  .range-row .val { width:36px; text-align:right; color:#9fb3c8; font-size:.85rem; }
+  .right { text-align:right; }
+  footer { text-align:center; padding:20px 10px; margin-top:30px; border-top:1px solid #2a2f3a; color:#6b7789; font-size:0.9rem; }
+  footer a { color:#10b981; text-decoration:none; transition:color .2s ease; }
+  footer a:hover { color:#0ea36e; text-decoration:underline; }
+  dialog { border:none; border-radius:16px; padding:0; background:#0f1115; color:#eaeef2; width:min(680px, 96vw); }
+  .dialog-inner { padding:12px; }
+  textarea { width:100%; height:50vh; border-radius:12px; background:#0b0e14; color:#eaeef2; border:1px solid #2a2f3a; padding:10px; font-family:ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; }
+</style>
+</head>
+<body>
+
+
+<fieldset>
+  <button id="btnConnect" style="width:100%; padding:16px; font-size:1.05rem; font-weight:600; background:#475569; border-color:#475569; color:#fff; transition:all .3s ease;">
+    Connect GP-5
+  </button>
+</fieldset>
+
+<fieldset>
+  <legend>🎚️ Presets</legend>
+  <div style="display:flex; gap:12px; margin-bottom:16px;">
+    <div style="flex:1; text-align:center;">
+      <div style="display:inline-block; background:#1b2130; border:2px solid #2a2f3a; border-radius:16px; padding:8px; min-width:120px;">
+        <div style="font-size:0.75rem; color:#9fb3c8; margin-bottom:2px;">Current Preset</div>
+        <div id="currentPresetDisplay" style="font-size:2rem; font-weight:700; color:#10b981;">--</div>
+      </div>
+    </div>
+    <div style="flex:0 0 auto;">
+      <button id="btnTuner" disabled style="width:140px; height:100%; padding:12px; font-size:0.95rem; font-weight:700; border-radius:12px; border:2px solid #2a2f3a; background:#1b2130; color:#9fb3c8; cursor:pointer; transition:all 0.3s ease; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
+        <span style="font-size:1.5rem;">🎼</span>
+        <span style="font-size:0.85rem;">Tuner</span>
+      </button>
+    </div>
+  </div>
+  <div class="row" style="gap:10px; margin-bottom:12px;">
+    <button id="btnPrev" disabled style="flex:1; padding:16px; font-size:1.1rem; background:#1b2130; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <span style="font-size:1.5rem;">◀</span>
+      <span>Previous</span>
+    </button>
+    <button id="btnNext" disabled style="flex:1; padding:16px; font-size:1.1rem; background:#1b2130; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <span>Next</span>
+      <span style="font-size:1.5rem;">▶</span>
+    </button>
+  </div>
+  <div style="border-top:1px solid #2a2f3a; padding-top:12px; margin-top:12px;">
+    <label for="presetNum" style="display:block; text-align:center; margin-bottom:8px; color:#9fb3c8; font-size:0.85rem;">Go to specific preset (00–99)</label>
+    <div class="row" style="gap:8px;">
+      <input type="number" id="presetNum" min="0" max="99" value="0" style="flex:1; text-align:center; font-size:1.1rem; font-weight:600;">
+      <button id="btnSendPreset" disabled class="primary" style="flex:0 0 auto; padding:10px 20px;">Go →</button>
+    </div>
+  </div>
+</fieldset>
+
+
+<fieldset>
+  <legend>️ Modules</legend>
+  <div id="modsGrid" class="grid"></div>
+</fieldset>
+
+<fieldset>
+  <legend>🎵 Parameters</legend>
+  <div id="paramsList" class="col"></div>
+  <div class="btnbar">
+    <button id="btnEditMap" disabled>Edit CC Map</button>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>📋 Logs</legend>
+  <pre id="log"></pre>
+</fieldset>
+
+<dialog id="mapDialog">
+  <div class="dialog-inner">
+    <div class="row" style="align-items:center; margin-bottom:8px;">
+      <div style="font-weight:600;">Edit CC Map (JSON)</div>
+      <div class="right"><button id="btnCloseMap">Close</button></div>
+    </div>
+    <textarea id="mapTextarea"></textarea>
+    <div class="row" style="margin-top:8px;">
+      <button id="btnResetMap">Reset to Default</button>
+      <button id="btnApplyMap" class="primary">Apply</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+// ——— util ———
+const LS = {
+  channel: "gp5.channel",
+  outputId: "gp5.outputId",
+  ccMap: "gp5.ccMap",
+  preset: "gp5.preset",
+};
+const clamp = (v,min=0,max=127)=> Math.min(max, Math.max(min, v|0));
+const logEl = document.getElementById('log');
+const log = (...a)=>{ logEl.textContent += a.join(' ') + "\\n"; logEl.scrollTop = logEl.scrollHeight; };
+
+// ——— elementos ———
+const btnConnect = document.getElementById('btnConnect');
+const btnSendPreset = document.getElementById('btnSendPreset');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const btnTuner = document.getElementById('btnTuner');
+const presetNum = document.getElementById('presetNum');
+const currentPresetDisplay = document.getElementById('currentPresetDisplay');
+const modsGrid = document.getElementById('modsGrid');
+const paramsList = document.getElementById('paramsList');
+const btnEditMap = document.getElementById('btnEditMap');
+const mapDialog = document.getElementById('mapDialog');
+const mapTextarea = document.getElementById('mapTextarea');
+const btnApplyMap = document.getElementById('btnApplyMap');
+const btnCloseMap = document.getElementById('btnCloseMap');
+const btnResetMap = document.getElementById('btnResetMap');
+
+// ——— canal fixo (sempre canal 1) ———
+const MIDI_CHANNEL = 0; // Canal 1 (0-indexed)
+
+// ——— mapa padrão (ajuste conforme manual) ———
+const DEFAULT_CC_MAP = {
+  presetSelect: { cc: 0, label: "Preset (0–99)" },
+  patchVolume: { cc: 7, label: "Patch Volume (0-100)" },
+  bankPrev: { cc: 22, label: "Bank − (ten digit)" },
+  bankNext: { cc: 23, label: "Bank + (ten digit)" },
+  patchPrev: { cc: 24, label: "Patch −" },
+  patchNext: { cc: 25, label: "Patch +" },
+  songPrev: { cc: 29, label: "Song Patch −" },
+  songNext: { cc: 30, label: "Song Patch +" },
+  tuner: { cc: 58, label: "Tuner On/Off" },
+  ctl: { cc: 69, label: "CTL" },
+  modules: [
+    { key:"nr",     label:"NR", cc:48 },
+    { key:"pre",    label:"PRE", cc:49 },
+    { key:"dst",    label:"DST", cc:50 },
+    { key:"ns",     label:"N→S", cc:51 },
+    { key:"amp",    label:"AMP",                  cc:52 },
+    { key:"cab",    label:"CAB",                  cc:53 },
+    { key:"eq",     label:"EQ",                   cc:54 },
+    { key:"mod",    label:"MOD",                  cc:55 },
+    { key:"dly",    label:"DLY",          cc:56 },
+    { key:"rvb",    label:"RVB",         cc:57 }
+  ],
+  params: [
+    { key:"patch_volume", label:"Patch Volume", cc:7, min:0, max:100 }
+  ]
+};
+
+function loadMap(){
+  try{
+    const raw = localStorage.getItem(LS.ccMap);
+    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_CC_MAP));
+    return JSON.parse(raw);
+  }catch{ return JSON.parse(JSON.stringify(DEFAULT_CC_MAP)); }
+}
+let CC_MAP = loadMap();
+mapTextarea.value = JSON.stringify(CC_MAP, null, 2);
+
+// ——— MIDI ———
+let midiAccess=null;
+let midiOut=null;
+let midiIn=null; // Para receber mensagens MIDI da GP-5
+
+function enableControls(enabled){
+  btnSendPreset.disabled = btnPrev.disabled = btnNext.disabled = btnEditMap.disabled = btnTuner.disabled = !enabled;
+  // modules/params toggles will be enabled/disabled by rebuilding UI
+}
+
+// Build modules UI - Botões maiores e mais visíveis
+const moduleStates = {};
+function buildModules(){
+  modsGrid.innerHTML = "";
+  CC_MAP.modules.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'module-btn';
+    btn.textContent = m.label;
+    btn.dataset.key = m.key;
+    btn.style.cssText = `
+      padding: 16px 12px;
+      border-radius: 10px;
+      border: 2px solid #2a2f3a;
+      background: #1b2130;
+      color: #9fb3c8;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-align: center;
+    `;
+    
+    const setOn = (on)=>{
+      moduleStates[m.key] = !!on;
+      if (on) {
+        btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        btn.style.borderColor = '#10b981';
+        btn.style.color = '#fff';
+        btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+      } else {
+        btn.style.background = '#1b2130';
+        btn.style.borderColor = '#2a2f3a';
+        btn.style.color = '#9fb3c8';
+        btn.style.boxShadow = 'none';
+      }
+    };
+    
+    setOn(!!moduleStates[m.key]);
+    
+    btn.onclick = ()=>{
+      const now = !moduleStates[m.key];
+      setOn(now);
+      if (midiOut) {
+        midiOut.send([0xB0 | MIDI_CHANNEL, clamp(m.cc,0,127), now?127:0]);
+        log(`${m.label}: ${now?'ON':'OFF'}`);
+      }
+    };
+    
+    btn.onmouseenter = ()=> {
+      if (!moduleStates[m.key]) {
+        btn.style.borderColor = '#3a4458';
+        btn.style.transform = 'translateY(-2px)';
+      }
+    };
+    
+    btn.onmouseleave = ()=> {
+      if (!moduleStates[m.key]) {
+        btn.style.borderColor = '#2a2f3a';
+        btn.style.transform = 'translateY(0)';
+      }
+    };
+    
+    modsGrid.appendChild(btn);
+  });
+}
+
+// Build parameters UI with debounced send
+const paramValues = {};
+const debouncers = {};
+function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms);} }
+function buildParams(){
+  paramsList.innerHTML = "";
+  CC_MAP.params.forEach(p => {
+    const row = document.createElement('div');
+    row.style.marginBottom = '8px';
+    const head = document.createElement('div');
+    head.style.display='flex'; head.style.justifyContent='space-between';
+    head.style.marginBottom='6px';
+    head.innerHTML = `<div>${p.label}</div><div class="pill">CC#${p.cc==null?"—":p.cc}</div>`;
+    const rrow = document.createElement('div');
+    rrow.className = 'range-row';
+    const slider = document.createElement('input');
+    slider.type='range'; slider.min=p.min??0; slider.max=p.max??127; slider.value=paramValues[p.key] ?? 50;
+    const val = document.createElement('div'); val.className = 'val'; val.textContent = slider.value;
+    rrow.appendChild(slider); rrow.appendChild(val);
+    row.appendChild(head); row.appendChild(rrow);
+    paramsList.appendChild(row);
+    if (!debouncers[p.key]){
+      debouncers[p.key] = debounce((v)=>{
+        if (p.cc==null || midiOut==null) return;
+        midiOut.send([0xB0 | MIDI_CHANNEL, clamp(p.cc,0,127), clamp(v, p.min??0, p.max??127)]);
+      }, 60);
+    }
+    slider.oninput = (e)=>{
+      const v = clamp(parseInt(e.target.value,10), p.min??0, p.max??127);
+      val.textContent = v;
+      paramValues[p.key] = v;
+      debouncers[p.key](v);
+    };
+  });
+}
+
+function rebuildUI(){
+  buildModules();
+  buildParams();
+}
+
+// MIDI helpers
+function listPorts(){
+  const outs = Array.from(midiAccess.outputs.values());
+  const ins = Array.from(midiAccess.inputs.values());
+  
+  // Tenta encontrar automaticamente a GP-5
+  const gp5Out = outs.find(o=>/gp-?5/i.test(o.name)) || outs[0];
+  const gp5In = ins.find(i=>/gp-?5/i.test(i.name)) || ins[0];
+  
+  if (gp5Out) {
+    midiOut = gp5Out;
+    btnConnect.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+    btnConnect.style.borderColor = '#10b981';
+    btnConnect.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+    btnConnect.textContent = '✅ Connected';
+    log(`✅ Connected: ${gp5Out.name}`);
+  } else {
+    btnConnect.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+    btnConnect.style.borderColor = '#ef4444';
+    btnConnect.textContent = '❌ Device not found';
+    log('⚠️ No MIDI output found');
+  }
+  
+  // Configura entrada MIDI para receber mensagens
+  if (gp5In) {
+    midiIn = gp5In;
+    midiIn.onmidimessage = handleMidiMessage;
+  }
+  
+  enableControls(!!midiOut);
+}
+
+// Processa mensagens MIDI recebidas da GP-5
+function handleMidiMessage(event) {
+  const [status, cc, value] = event.data;
+  const messageType = status & 0xF0;
+  
+  // Control Change (0xB0)
+  if (messageType === 0xB0) {
+    // Atualiza estado dos módulos (CC#48-57)
+    const module = CC_MAP.modules.find(m => m.cc === cc);
+    if (module) {
+      const isOn = value >= 64;
+      moduleStates[module.key] = isOn;
+      updateModuleUI(module.key, isOn);
+      log(`${module.label}: ${isOn?'ON':'OFF'}`);
+    }
+    
+    // Atualiza preset atual (CC#0)
+    if (cc === 0) {
+      updatePresetDisplay(value);
+    }
+    
+    // Atualiza volume (CC#7)
+    if (cc === 7) {
+      paramValues['patch_volume'] = value;
+      updateParamUI('patch_volume', value);
+    }
+    
+    // Atualiza estado do Tuner (CC#58)
+    if (cc === 58) {
+      tunerActive = value >= 64;
+      if (tunerActive) {
+        btnTuner.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        btnTuner.style.borderColor = '#f59e0b';
+        btnTuner.style.color = '#fff';
+        btnTuner.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.5)';
+        btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">ACTIVE</span>';
+      } else {
+        btnTuner.style.background = '#1b2130';
+        btnTuner.style.borderColor = '#2a2f3a';
+        btnTuner.style.color = '#9fb3c8';
+        btnTuner.style.boxShadow = 'none';
+        btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">Tuner</span>';
+      }
+      log(`🎼 Tuner: ${tunerActive?'ON':'OFF'}`);
+    }
+  }
+}
+
+// Atualiza UI de um módulo específico
+function updateModuleUI(key, isOn) {
+  const buttons = modsGrid.querySelectorAll('.module-btn');
+  const module = CC_MAP.modules.find(m => m.key === key);
+  if (!module) return;
+  
+  const idx = CC_MAP.modules.indexOf(module);
+  if (idx >= 0 && buttons[idx]) {
+    const btn = buttons[idx];
+    moduleStates[key] = isOn;
+    if (isOn) {
+      btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+      btn.style.borderColor = '#10b981';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+    } else {
+      btn.style.background = '#1b2130';
+      btn.style.borderColor = '#2a2f3a';
+      btn.style.color = '#9fb3c8';
+      btn.style.boxShadow = 'none';
+    }
+  }
+}
+
+// Atualiza UI de um parâmetro específico
+function updateParamUI(key, value) {
+  const param = CC_MAP.params.find(p => p.key === key);
+  if (!param) return;
+  
+  const ranges = paramsList.querySelectorAll('input[type="range"]');
+  const idx = CC_MAP.params.indexOf(param);
+  if (idx >= 0 && ranges[idx]) {
+    ranges[idx].value = value;
+    const valDisplay = ranges[idx].parentElement.querySelector('.val');
+    if (valDisplay) valDisplay.textContent = value;
+  }
+}
+
+// Solicita o estado atual de todos os módulos
+// A GP-5 não tem um comando MIDI para solicitar estados,
+// então vamos alternar cada módulo 2x para obter o estado atual
+let isSyncing = false;
+async function requestModuleStates() {
+  if (isSyncing || !midiOut) return;
+  isSyncing = true;
+  btnSync.disabled = true;
+  btnSync.textContent = '⏳ Sincronizando...';
+  log('🔄 Iniciando sincronização dos módulos...');
+  
+  // Para cada módulo, vamos enviar o comando atual 2x com delay
+  // Isso força a GP-5 a responder com o estado
+  for (const module of CC_MAP.modules) {
+    // Envia toggle off e depois on para "acordar" o feedback
+    await sleep(50);
+    midiOut.send([0xB0 | MIDI_CHANNEL, module.cc, 0]);
+    await sleep(50);
+    midiOut.send([0xB0 | MIDI_CHANNEL, module.cc, 127]);
+    await sleep(50);
+  }
+  
+  log('✅ Sincronização concluída! Agora altere algo na pedaleira para ver o estado real.');
+  btnSync.textContent = '🔄 Sincronizar Estados dos Módulos';
+  btnSync.disabled = false;
+  isSyncing = false;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function sendCC(cc, value){
+  if(!midiOut) return;
+  midiOut.send([0xB0 | MIDI_CHANNEL, clamp(cc,0,127), clamp(value,0,127)]);
+}
+
+// ——— eventos ———
+btnConnect.onclick = async ()=>{
+  try{
+    midiAccess = await navigator.requestMIDIAccess({ sysex:true });
+    midiAccess.onstatechange = ()=> listPorts();
+    listPorts();
+    enableControls(!!midiOut);
+  }catch(e){
+    btnConnect.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+    btnConnect.style.borderColor = '#ef4444';
+    btnConnect.textContent = '❌ Connection error';
+    log('Error obtaining MIDI access:', e);
+  }
+};
+
+// Track current preset
+let currentPreset = parseInt(localStorage.getItem(LS.preset) || "0", 10);
+function updatePresetDisplay(val){
+  currentPreset = clamp(val, 0, 99);
+  currentPresetDisplay.textContent = String(currentPreset).padStart(2, '0');
+  localStorage.setItem(LS.preset, String(currentPreset));
+  presetNum.value = currentPreset; // Sincroniza o campo numérico
+}
+updatePresetDisplay(currentPreset);
+
+btnSendPreset.onclick = ()=>{
+  const v = clamp(parseInt(presetNum.value,10) || 0, 0, 99);
+  sendCC(CC_MAP.presetSelect.cc, v);
+  updatePresetDisplay(v);
+};
+btnPrev.onclick = ()=>{ 
+  const newPreset = clamp(currentPreset - 1, 0, 99);
+  sendCC(CC_MAP.presetSelect.cc, newPreset);
+  updatePresetDisplay(newPreset);
+};
+btnNext.onclick = ()=>{ 
+  const newPreset = clamp(currentPreset + 1, 0, 99);
+  sendCC(CC_MAP.presetSelect.cc, newPreset);
+  updatePresetDisplay(newPreset);
+};
+
+// Tuner control
+let tunerActive = false;
+btnTuner.onclick = ()=>{
+  tunerActive = !tunerActive;
+  sendCC(CC_MAP.tuner.cc, tunerActive ? 127 : 0);
+  
+  if (tunerActive) {
+    btnTuner.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+    btnTuner.style.borderColor = '#f59e0b';
+    btnTuner.style.color = '#fff';
+    btnTuner.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.5)';
+    btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">ACTIVE</span>';
+    log('🎼 Tuner: ON');
+  } else {
+    btnTuner.style.background = '#1b2130';
+    btnTuner.style.borderColor = '#2a2f3a';
+    btnTuner.style.color = '#9fb3c8';
+    btnTuner.style.boxShadow = 'none';
+    btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">Tuner</span>';
+    log('🎼 Tuner: OFF');
+  }
+};
+
+
+// Editar mapa de CC
+btnEditMap.onclick = ()=>{ mapTextarea.value = JSON.stringify(CC_MAP, null, 2); mapDialog.showModal(); };
+btnCloseMap.onclick = ()=> mapDialog.close();
+btnResetMap.onclick = ()=>{ mapTextarea.value = JSON.stringify(DEFAULT_CC_MAP, null, 2); };
+btnApplyMap.onclick = ()=>{
+  try{
+    const obj = JSON.parse(mapTextarea.value);
+    CC_MAP = obj;
+    localStorage.setItem(LS.ccMap, JSON.stringify(CC_MAP));
+    rebuildUI();
+    mapDialog.close();
+  }catch{ alert('Invalid JSON'); }
+};
+
+// Inicializa UI
+rebuildUI();
+enableControls(false);
+</script>
+
+<footer>
+  <div style="font-weight:600; margin-bottom:8px;">GP-5 Web Controller</div>
+  <div>
+    Developed by <a href="https://github.com/helvecioneto/" target="_blank" rel="noopener noreferrer">Helvecio Neto</a> © 2025
+  </div>
+</footer>
+
+</body>
+</html>
