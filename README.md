@@ -23,9 +23,7 @@ A web-based controller for the **Valeton GP-5** multi-effects pedal with **dual-
 ### Common Features
 - 🎚️ **Preset Management**: Navigate through presets 00-99
 - 🎛️ **Module Control**: Toggle all 10 effect modules (NR, PRE, DST, N→S, AMP, CAB, EQ, MOD, DLY, RVB)
-- 🎼 **Built-in Tuner**: Quick access to the GP-5 tuner (USB mode)
 - 🎵 **Parameter Control**: Adjust patch volume in real-time
-- 💾 **State Persistence**: Remembers your last settings
 - 🛠️ **Customizable**: Edit MIDI CC mappings via JSON
 
 ### Bluetooth Mode Only
@@ -95,7 +93,6 @@ Open the browser **Console** (F12) to see detailed logs:
 - `README.md` - This file
 python -m http.server 8000
 # Then open http://localhost:8000/test.html
-```
 
 ## 🎮 How to Use
 
@@ -114,10 +111,6 @@ python -m http.server 8000
 - **Green** = Module is active
 - **Gray** = Module is inactive
 - Changes sync bidirectionally with your pedal
-
-### Tuner
-- Click the **🎼 Tuner** button to activate/deactivate the tuner
-- **Orange glow** indicates the tuner is active
 
 ### Parameters
 - Use the **Patch Volume** slider to adjust volume (0-100)
