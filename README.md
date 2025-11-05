@@ -19,8 +19,6 @@ A web-based MIDI controller for the **Valeton GP-5** multi-effects pedal. Contro
 - 🎛️ **Module Control**: Toggle all 10 effect modules (NR, PRE, DST, N→S, AMP, CAB, EQ, MOD, DLY, RVB)
 - 🎼 **Built-in Tuner**: Quick access to the GP-5 tuner
 - 🎵 **Parameter Control**: Adjust patch volume in real-time
-- 🔄 **Bidirectional Sync**: Changes on the pedal reflect in the interface automatically
-- 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
 - 💾 **State Persistence**: Remembers your last settings using localStorage
 - 🛠️ **Customizable CC Map**: Edit MIDI CC mappings via JSON editor
 
