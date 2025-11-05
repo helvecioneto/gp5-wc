@@ -6,6 +6,13 @@ A web-based MIDI controller for the **Valeton GP-5** multi-effects pedal. Contro
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Web MIDI](https://img.shields.io/badge/Web%20MIDI-API-orange.svg)
 
+## 📸 Web Example [https://helvecioneto.github.io/gp5-wc/](https://helvecioneto.github.io/gp5-wc/)
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/helvecioneto/gp5-wc/refs/heads/main/misc/example.png" alt="GP-5 Web Controller Interface" width="500">
+  <p><i>GP-5 Web Controller interface</i></p>
+</div>
+
 ## ✨ Features
 
 - 🎚️ **Preset Management**: Navigate through presets 00-99 with intuitive controls
@@ -14,7 +21,6 @@ A web-based MIDI controller for the **Valeton GP-5** multi-effects pedal. Contro
 - 🎵 **Parameter Control**: Adjust patch volume in real-time
 - 🔄 **Bidirectional Sync**: Changes on the pedal reflect in the interface automatically
 - 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
-- 🌙 **Dark Mode**: Eye-friendly dark interface
 - 💾 **State Persistence**: Remembers your last settings using localStorage
 - 🛠️ **Customizable CC Map**: Edit MIDI CC mappings via JSON editor
 
