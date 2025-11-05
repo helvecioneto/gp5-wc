@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "generated_from": [
+    "index.html"
+  ],
+  "midi_channel_indexed_from_zero": 0,
+  "notes": "Mapa de comandos CC gerado a partir do DEFAULT_CC_MAP em index.html. Se houver overrides em ble_sysex.json, atualize este arquivo conforme necessário.",
+  "commands": {
+    "presetSelect": { "cc": 0, "label": "Preset (0–99)" },
+    "patchVolume": { "cc": 7, "label": "Patch Volume (0-100)" },
+    "bankPrev": { "cc": 22, "label": "Bank − (ten digit)" },
+    "bankNext": { "cc": 23, "label": "Bank + (ten digit)" },
+    "patchPrev": { "cc": 24, "label": "Patch −" },
+    "patchNext": { "cc": 25, "label": "Patch +" },
+    "songPrev": { "cc": 29, "label": "Song Patch −" },
+    "songNext": { "cc": 30, "label": "Song Patch +" },
+    "tuner": { "cc": 58, "label": "Tuner On/Off" },
+    "ctl": { "cc": 69, "label": "CTL" },
+    "modules": [
+      { "key": "nr",  "label": "NR",  "cc": 48 },
+      { "key": "pre", "label": "PRE", "cc": 49 },
+      { "key": "dst", "label": "DST", "cc": 50 },
+      { "key": "ns",  "label": "N→S", "cc": 51 },
+      { "key": "amp", "label": "AMP", "cc": 52 },
+      { "key": "cab", "label": "CAB", "cc": 53 },
+      { "key": "eq",  "label": "EQ",  "cc": 54 },
+      { "key": "mod", "label": "MOD", "cc": 55 },
+      { "key": "dly", "label": "DLY", "cc": 56 },
+      { "key": "rvb", "label": "RVB", "cc": 57 }
+    ],
+    "params": [
+      { "key": "patch_volume", "label": "Patch Volume", "cc": 7, "min": 0, "max": 100 }
+    ]
+  }
+}

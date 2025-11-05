@@ -1,0 +1,1187 @@
+{
+  "device": {
+    "name": "Valeton GP5",
+    "version": "v0.1b",
+    "bluetooth": {
+      "service_uuid": "03b80e5a-ede8-4b33-a751-6ce34ec4c700",
+      "characteristic_uuid": "7772e5db-3868-4112-a1a9-f2669d106bf3"
+    }
+  },
+  "sync_commands": {
+    "start_sync": {
+      "description": "Iniciar sincronização com o dispositivo",
+      "sysex": "8080F0000E00010000000201020400F7"
+    },
+    "request_patch_list": {
+      "description": "Solicitar lista de patches",
+      "sysex": "8080f0030500010000000201020204f7"
+    },
+    "request_snaptones": {
+      "description": "Solicitar snaptones (NAM's)",
+      "sysex": "8080f0030500010000000201020204f7"
+    },
+    "request_ir_list": {
+      "description": "Solicitar lista de IR's (Impulse Response)",
+      "sysex": "8080F0020900010000000201020200F7"
+    },
+    "request_current_patch_number": {
+      "description": "Solicitar número do patch atual",
+      "sysex": "8080F0000700010000000201020403F7"
+    },
+    "request_patch_data": {
+      "description": "Solicitar dados do patch atual",
+      "sysex": "8080f0000900010000000201020401f7"
+    }
+  },
+  "patch_commands": {
+    "change_patch": {
+      "description": "Trocar para um patch específico",
+      "command_template": "0100061143{PATCH}000000",
+      "notes": "PATCH deve ser hexadecimal de 2 dígitos (00-63 para patches 0-99)",
+      "example": "0100061143{05}000000 para patch 5"
+    }
+  },
+  "block_commands": {
+    "change_effect": {
+      "description": "Alterar efeito de um bloco",
+      "command_template": "01000e11470{BLOCK}0000000{BLOCK}000000{EFFECT_ID}",
+      "notes": "BLOCK é o índice do bloco (0-9), EFFECT_ID é o código hexadecimal do efeito"
+    },
+    "toggle_block": {
+      "description": "Ligar/desligar um bloco de efeito",
+      "command_template": "01000a11490{EFFECT}0000000{STATUS}000000",
+      "notes": "EFFECT é o índice do efeito, STATUS: 0=off, 1=on"
+    },
+    "change_parameter": {
+      "description": "Alterar parâmetro de um efeito",
+      "command_template": "01000e1148{BLOCK}000000{PARAM_NUM}000000{VALUE_FLOAT_HEX}",
+      "notes": "VALUE_FLOAT_HEX é o valor em float convertido para bytes hexadecimais (little endian, 4 bytes)"
+    }
+  },
+  "blocks": [
+    {
+      "id": 0,
+      "name": "nr",
+      "label": "Noise Reduction",
+      "effects": {
+        "00000000": {
+          "id": 0,
+          "name": "Noise Reduction",
+          "parameters": [
+            {
+              "index": 0,
+              "name": "THRE",
+              "default": 20,
+              "min": 0,
+              "max": 100,
+              "step": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 1,
+      "name": "pre",
+      "label": "Pre-Effects",
+      "effects": {
+        "00000000": {
+          "id": 0,
+          "name": "Compressor",
+          "parameters": [
+            {"index": 0, "name": "Sustain", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Vol", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "01000000": {
+          "id": 1,
+          "name": "Compressor 2",
+          "parameters": [
+            {"index": 0, "name": "Sustain", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Attack", "default": 60, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Clip", "default": 10, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "1a000000": {
+          "id": 2,
+          "name": "Booster",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "+3DB", "default": 1, "min": 0, "max": 1, "step": 1},
+            {"index": 2, "name": "Bright", "default": 1, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "14000000": {
+          "id": 3,
+          "name": "Volume",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "0b000000": {
+          "id": 4,
+          "name": "EQ",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "0f000001": {
+          "id": 5,
+          "name": "Auto Wah",
+          "parameters": [
+            {"index": 0, "name": "Sense", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Range", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Q", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Mix", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Mode (Guitar/Bass)", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "15000001": {
+          "id": 6,
+          "name": "Touch Wah",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Low", "default": 25, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Q", "default": 70, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "High", "default": 60, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "21000001": {
+          "id": 7,
+          "name": "Octaver",
+          "parameters": [
+            {"index": 0, "name": "Low", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "High", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Dry", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "23000001": {
+          "id": 8,
+          "name": "Smart Harmony",
+          "parameters": [
+            {"index": 0, "name": "mHigh", "default": 12, "min": 0, "max": 24, "step": 1},
+            {"index": 1, "name": "mLow", "default": -12, "min": -24, "max": 0, "step": 1},
+            {"index": 2, "name": "mDry", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "mH-Vol", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "mL-VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "29000001": {
+          "id": 9,
+          "name": "Pitch Shifter",
+          "parameters": [
+            {"index": 0, "name": "Detune", "default": -25, "min": -50, "max": 50, "step": 1},
+            {"index": 1, "name": "Wet", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Dry", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "dst",
+      "label": "Distortion",
+      "effects": {
+        "00000003": {
+          "id": 0,
+          "name": "Overdrive",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 70, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "02000003": {
+          "id": 1,
+          "name": "Distortion",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "06000003": {
+          "id": 2,
+          "name": "Metal",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "2a000003": {
+          "id": 3,
+          "name": "Crunch",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "29000003": {
+          "id": 4,
+          "name": "Blues",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "30000003": {
+          "id": 5,
+          "name": "Classic",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "2b000003": {
+          "id": 6,
+          "name": "Bass Overdrive",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Filter", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "22000003": {
+          "id": 7,
+          "name": "Fuzz",
+          "parameters": [
+            {"index": 0, "name": "Fuzz", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "24000003": {
+          "id": 8,
+          "name": "Muff Fuzz",
+          "parameters": [
+            {"index": 0, "name": "Fuzz", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "40000003": {
+          "id": 9,
+          "name": "Bass Distortion",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Blend", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "amp",
+      "label": "Amplifier",
+      "effects": {
+        "01000007": {
+          "id": 0,
+          "name": "Tweedy",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "03000007": {
+          "id": 1,
+          "name": "Bellman",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "04000007": {
+          "id": 2,
+          "name": "Dark Twin",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 35, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Middle", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Treble", "default": 60, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Bright", "default": 1, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "11000007": {
+          "id": 3,
+          "name": "Foxy",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone Cut", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bright", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "14000007": {
+          "id": 4,
+          "name": "J-120",
+          "parameters": [
+            {"index": 0, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Bright", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "15000007": {
+          "id": 5,
+          "name": "Match",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 25, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 65, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 45, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 65, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "19000007": {
+          "id": 6,
+          "name": "L-Star CL",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 25, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 65, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 45, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 65, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "2a000007": {
+          "id": 7,
+          "name": "UK 45",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 25, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 65, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 45, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 65, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "2f000007": {
+          "id": 8,
+          "name": "UK 50 JP",
+          "parameters": [
+            {"index": 0, "name": "Gain 1", "default": 40, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 6, "name": "Gain 2", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "35000007": {
+          "id": 9,
+          "name": "UK 800",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "24000007": {
+          "id": 10,
+          "name": "Bellman 59b",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 35, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "27000007": {
+          "id": 11,
+          "name": "Foxy 30TB",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone Cut", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Char", "default": 1, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "28000007": {
+          "id": 12,
+          "name": "SUPDual OD",
+          "parameters": [
+            {"index": 0, "name": "Gain 1", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone 1", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Gain 2", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Tone 2", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "47000007": {
+          "id": 13,
+          "name": "SOLO100 D",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "49000007": {
+          "id": 14,
+          "name": "Z38 OD",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone Cut", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "4b000007": {
+          "id": 15,
+          "name": "Bad-KY OD",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Edge", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "53000007": {
+          "id": 16,
+          "name": "Juice r100",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "65000007": {
+          "id": 17,
+          "name": "Dizz VH",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "6a000007": {
+          "id": 18,
+          "name": "Dizz VH+",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "5f000007": {
+          "id": 19,
+          "name": "Eagle 120",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "5a000007": {
+          "id": 20,
+          "name": "EV 51",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "59000007": {
+          "id": 21,
+          "name": "Solo100 LD",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "68000007": {
+          "id": 22,
+          "name": "Mess Dual V",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "69000007": {
+          "id": 23,
+          "name": "Mess dual M",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "63000007": {
+          "id": 24,
+          "name": "Power LD",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "5d000007": {
+          "id": 25,
+          "name": "Flagman+",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "6d000007": {
+          "id": 26,
+          "name": "Bog RedV",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "PRES", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "73000007": {
+          "id": 27,
+          "name": "Classic Bass",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "MidFreq", "default": 1, "min": 0, "max": 4, "step": 1, "note": "220Hz / 450Hz / 800Hz / 1.6Khz / 3Khz"},
+            {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "75000007": {
+          "id": 28,
+          "name": "Foxy Bass",
+          "parameters": [
+            {"index": 0, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "77000007": {
+          "id": 29,
+          "name": "Mess Bass",
+          "parameters": [
+            {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "7a000008": {
+          "id": 30,
+          "name": "AC Pre1",
+          "parameters": [
+            {"index": 0, "name": "Volume", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Balance", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "EQ Freq", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "EQ Q", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "EQ Gain", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "7b000008": {
+          "id": 31,
+          "name": "AC Pre2",
+          "parameters": [
+            {"index": 0, "name": "Volume", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Balance", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "EQ Freq", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "EQ Q", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "EQ Gain", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "cab",
+      "label": "Cabinet",
+      "effects": {
+        "0100000a": {"id": 0, "name": "TWD CP 1x8"},
+        "0400000a": {"id": 1, "name": "Dark VIT 1x12"},
+        "0800000a": {"id": 2, "name": "Foxy 1x12"},
+        "0900000a": {"id": 3, "name": "L-Star 1x12"},
+        "1b00000a": {"id": 4, "name": "Dark CS 2x12"},
+        "1200000a": {"id": 5, "name": "Dark Twin 2x12"},
+        "1900000a": {"id": 6, "name": "SUP Star 2x12"},
+        "1100000a": {"id": 7, "name": "J-120 2x12"},
+        "0f00000a": {"id": 8, "name": "Foxy 2x12"},
+        "1300000a": {"id": 9, "name": "UK GRN 2x12"},
+        "2200000a": {"id": 10, "name": "UK GRN 4x12"},
+        "2500000a": {"id": 11, "name": "Bog 4x12"},
+        "2e00000a": {"id": 12, "name": "Dizz 4x12"},
+        "2000000a": {"id": 13, "name": "EV 4x12"},
+        "2800000a": {"id": 14, "name": "Solo 4x12"},
+        "2400000a": {"id": 15, "name": "Mess 4x12"},
+        "2600000a": {"id": 16, "name": "Eagle 4x12"},
+        "2900000a": {"id": 17, "name": "Juice 4x12"},
+        "1600000a": {"id": 18, "name": "Bellman 2x12"},
+        "3800000a": {"id": 19, "name": "AMPG 4x10"},
+        "0000100a": {"id": 20, "name": "User IR 1"},
+        "0100100a": {"id": 21, "name": "User IR 2"},
+        "0200100a": {"id": 22, "name": "User IR 3"},
+        "0300100a": {"id": 23, "name": "User IR 4"},
+        "0400100a": {"id": 24, "name": "User IR 5"},
+        "0500100a": {"id": 25, "name": "User IR 6"},
+        "0600100a": {"id": 26, "name": "User IR 7"},
+        "0700100a": {"id": 27, "name": "User IR 8"},
+        "0800100a": {"id": 28, "name": "User IR 9"},
+        "0900100a": {"id": 29, "name": "User IR 10"},
+        "0a00100a": {"id": 30, "name": "User IR 11"},
+        "0b00100a": {"id": 31, "name": "User IR 12"},
+        "0c00100a": {"id": 32, "name": "User IR 13"},
+        "0d00100a": {"id": 33, "name": "User IR 14"},
+        "0e00100a": {"id": 34, "name": "User IR 15"},
+        "0f00100a": {"id": 35, "name": "User IR 16"},
+        "1000100a": {"id": 36, "name": "User IR 17"},
+        "1100100a": {"id": 37, "name": "User IR 18"},
+        "1200100a": {"id": 38, "name": "User IR 19"},
+        "1300100a": {"id": 39, "name": "User IR 20"}
+      },
+      "parameters": [
+        {"index": 0, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "eq",
+      "label": "Equalizer",
+      "effects": {
+        "35000001": {
+          "id": 0,
+          "name": "EQ 1",
+          "parameters": [
+            {"index": 0, "name": "125Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 1, "name": "400Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 2, "name": "800Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 3, "name": "1.6kHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 4, "name": "4KHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 5, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "36000001": {
+          "id": 1,
+          "name": "EQ 2",
+          "parameters": [
+            {"index": 0, "name": "100Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 1, "name": "500Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 2, "name": "1kHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 3, "name": "3kHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 4, "name": "6KHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 5, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "39000001": {
+          "id": 2,
+          "name": "Bass EQ 1",
+          "parameters": [
+            {"index": 0, "name": "33Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 1, "name": "150Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 2, "name": "600Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 3, "name": "2kHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 4, "name": "8KHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 5, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "3a000001": {
+          "id": 3,
+          "name": "Bass EQ 2",
+          "parameters": [
+            {"index": 0, "name": "50Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 1, "name": "120Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 2, "name": "400Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 3, "name": "800Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 4, "name": "4.5KHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 5, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "3c000001": {
+          "id": 4,
+          "name": "Mesa EQ",
+          "parameters": [
+            {"index": 0, "name": "80Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 1, "name": "240Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 2, "name": "750Hz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 3, "name": "2.2kHz", "default": 0, "min": -50, "max": 50, "step": 1},
+            {"index": 4, "name": "6.6KHz", "default": 0, "min": -50, "max": 50, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "name": "mod",
+      "label": "Modulation",
+      "effects": {
+        "00000004": {
+          "id": 0,
+          "name": "Chorus",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "08000004": {
+          "id": 1,
+          "name": "Flanger",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "11000004": {
+          "id": 2,
+          "name": "Phaser",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "P.Delay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "F.Back", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "13000004": {
+          "id": 3,
+          "name": "Vibrato",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "P.Delay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "F.Back", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "19000004": {
+          "id": 4,
+          "name": "Tremolo",
+          "parameters": [
+            {"index": 0, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1}
+          ]
+        },
+        "1f000004": {
+          "id": 5,
+          "name": "Rotary",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1}
+          ]
+        },
+        "15000004": {
+          "id": 6,
+          "name": "Ring Modulator",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1}
+          ]
+        },
+        "17000004": {
+          "id": 7,
+          "name": "Uni-V",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "21000004": {
+          "id": 8,
+          "name": "Auto Pan",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1}
+          ]
+        },
+        "26000004": {
+          "id": 9,
+          "name": "Detune",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        },
+        "28000004": {
+          "id": 10,
+          "name": "Vibro Pan",
+          "parameters": [
+            {"index": 0, "name": "Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Rate", "default": 0.5, "min": 0.1, "max": 10, "step": 0.1},
+            {"index": 2, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Bias", "default": 50, "min": 0, "max": 100, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "name": "dly",
+      "label": "Delay",
+      "effects": {
+        "0000000b": {
+          "id": 0,
+          "name": "Analog Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0100000b": {
+          "id": 1,
+          "name": "Digital Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0500000b": {
+          "id": 2,
+          "name": "Slap Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 150, "min": 20, "max": 300, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0d00000b": {
+          "id": 3,
+          "name": "Tape Echo",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0200000b": {
+          "id": 4,
+          "name": "Mod Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0b00000b": {
+          "id": 5,
+          "name": "Reverse Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "1300000b": {
+          "id": 6,
+          "name": "Lo-Fi Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0900000b": {
+          "id": 7,
+          "name": "Filter Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "R-Mix", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Freq", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Tone", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 6, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0600000b": {
+          "id": 8,
+          "name": "Sweep Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 1000, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "S-Depth", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "S-Rate", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 5, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0400000b": {
+          "id": 9,
+          "name": "Ping Pong Delay",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 20, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Time (ms)", "default": 500, "min": 20, "max": 500, "step": 1},
+            {"index": 2, "name": "F.Back", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "rvb",
+      "label": "Reverb",
+      "effects": {
+        "0b00000c": {
+          "id": 0,
+          "name": "Room",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Damp", "default": 0, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0000000c": {
+          "id": 1,
+          "name": "Hall",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0100000c": {
+          "id": 2,
+          "name": "Plate",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0200000c": {
+          "id": 3,
+          "name": "Church",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "1000000c": {
+          "id": 4,
+          "name": "Spring",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0f00000c": {
+          "id": 5,
+          "name": "Studio",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Damp", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0400000c": {
+          "id": 6,
+          "name": "Shimmer",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0600000c": {
+          "id": 7,
+          "name": "Reverse",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "0700000c": {
+          "id": 8,
+          "name": "Arena",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        },
+        "1500000c": {
+          "id": 9,
+          "name": "Mod Reverb",
+          "parameters": [
+            {"index": 0, "name": "Mix", "default": 30, "min": 0, "max": 100, "step": 1},
+            {"index": 1, "name": "Decay", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 2, "name": "Damp", "default": 0, "min": 0, "max": 100, "step": 1},
+            {"index": 3, "name": "Mod", "default": 50, "min": 0, "max": 100, "step": 1},
+            {"index": 4, "name": "Trail", "default": 0, "min": 0, "max": 1, "step": 1}
+          ]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "name": "ns",
+      "label": "NAM (Neural Amp Modeler)",
+      "effects_count": 80,
+      "note": "São 80 snaptones NAM disponíveis (IDs de 0-79), com nomes personalizados carregados dinamicamente",
+      "parameters": [
+        {"index": 0, "name": "Gain", "default": 50, "min": 0, "max": 100, "step": 1},
+        {"index": 1, "name": "VOL", "default": 50, "min": 0, "max": 100, "step": 1},
+        {"index": 2, "name": "Bass", "default": 50, "min": 0, "max": 100, "step": 1},
+        {"index": 3, "name": "Middle", "default": 50, "min": 0, "max": 100, "step": 1},
+        {"index": 4, "name": "Treble", "default": 50, "min": 0, "max": 100, "step": 1}
+      ]
+    }
+  ],
+  "protocol": {
+    "sysex_format": {
+      "start": "8080F0",
+      "end": "F7",
+      "structure": "8080F0 + [CRC8 em formato addzero] + [COMMAND em formato addzero] + F7",
+      "addzero_format": "Cada byte é precedido por '0' (ex: 'AB' -> '0A0B')"
+    },
+    "crc8": {
+      "description": "Checksum CRC-8 calculado sobre os bytes do comando",
+      "polynomial": "0x07",
+      "initial_value": "0x00"
+    },
+    "float_encoding": {
+      "description": "Valores de parâmetros são enviados como float32 (4 bytes)",
+      "byte_order": "little endian",
+      "example": "Valor 50.0 -> [0x00, 0x00, 0x48, 0x42] em hex"
+    }
+  },
+  "notification_handlers": {
+    "patch_list": {
+      "description": "Recebe lista de nomes de patches",
+      "identifier": "bytes[5]==1 && bytes[6]==5 && length==212"
+    },
+    "patch_data_part1": {
+      "description": "Primeiro bloco de dados do patch (status dos blocos, efeito PRE)",
+      "identifier": "bytes[5]==0 && bytes[6]==5 && bytes[7]==0 && bytes[8]==0 && length==212"
+    },
+    "patch_data_part2": {
+      "description": "Segundo bloco de dados do patch (efeitos DST, NS, AMP, CAB, EQ, MOD, DLY, RVB)",
+      "identifier": "bytes[5]==0 && bytes[6]==5 && bytes[7]==0 && bytes[8]==1 && length==212"
+    },
+    "patch_data_part3": {
+      "description": "Terceiro bloco de dados do patch (parâmetros DST, AMP, CAB, EQ)",
+      "identifier": "bytes[5]==0 && bytes[6]==5 && bytes[7]==0 && bytes[8]==2 && length==212"
+    },
+    "patch_data_part4": {
+      "description": "Quarto bloco de dados do patch (parâmetros EQ, MOD, DLY, RVB)",
+      "identifier": "bytes[5]==0 && bytes[6]==5 && bytes[7]==0 && bytes[8]==3 && length==212"
+    },
+    "patch_data_final": {
+      "description": "Bloco final de dados do patch (parâmetros NS, RVB finais)",
+      "identifier": "bytes[5]==0 && bytes[6]==5 && bytes[7]==0 && bytes[8]==4 && length==148"
+    },
+    "snaptones_data": {
+      "description": "Dados dos snaptones NAM",
+      "identifier": "bytes[5]==0 && bytes[6]==14 && (length==212 || length==136)"
+    },
+    "ir_data": {
+      "description": "Dados das IRs customizadas",
+      "identifier": "bytes[5]==0 && bytes[6]==4 && (length==212 || length==96)"
+    },
+    "current_patch_number": {
+      "description": "Número do patch atual",
+      "identifier": "bytes[5]==0 && bytes[6]==1 && bytes[10]==4 && bytes[11]==1 && bytes[12]==2 && length==20"
+    },
+    "patch_changed": {
+      "description": "Notificação de que o patch foi alterado no GP5",
+      "identifier": "bytes[5]==0 && bytes[6]==1 && bytes[12]==2 && bytes[13]==4 && bytes[14]==3 && length==24"
+    }
+  },
+  "usage_examples": {
+    "connect": "Use Web Bluetooth API para conectar ao serviço UUID especificado",
+    "sync_device": "Enviar start_sync, depois request_patch_list, depois request_snaptones, depois request_ir_list, depois request_current_patch_number, e finalmente request_patch_data",
+    "change_to_patch_5": "Construir comando change_patch com PATCH='05', calcular CRC8, aplicar addzero, envolver em sysex_format",
+    "turn_on_distortion": "Usar toggle_block com EFFECT=2 (dst) e STATUS=1",
+    "change_amp": "Usar change_effect com BLOCK=3 e EFFECT_ID apropriado da lista de AMPEffectsList",
+    "set_gain_to_70": "Usar change_parameter com BLOCK apropriado, PARAM_NUM=0, e VALUE=70.0 convertido para float hex"
+  },
+  "notes": [
+    "Todos os comandos SysEx devem ter o CRC8 calculado e aplicado no formato addzero",
+    "O formato addzero insere um '0' antes de cada caractere hexadecimal",
+    "Parâmetros float são enviados em little endian (4 bytes)",
+    "O GP5 suporta até 100 patches (0-99)",
+    "Existem 80 snaptones NAM disponíveis",
+    "Existem 20 slots para IRs customizadas (além dos 20 cabinets internos)",
+    "Cada bloco pode ser ligado/desligado independentemente",
+    "A sincronização completa requer múltiplas etapas e aguardar as notificações correspondentes"
+  ]
+}

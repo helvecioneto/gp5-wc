@@ -1,554 +1,1497 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GP‑5 USB‑MIDI Tester (Mobile)</title>
-<style>
-  :root { color-scheme: dark; }
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; 
-         margin: 14px; background:#0f1115; color:#eaeef2; }
-  h1 { font-size: 1.2rem; margin: 0 0 12px 0; }
-  fieldset { border:1px solid #2a2f3a; border-radius:12px; padding:16px; margin-bottom:14px; background:#141821; }
-  legend { padding:0 8px; color:#9fb3c8; font-weight:600; font-size:0.95rem; }
-  label { display:block; margin:6px 0 4px; font-size:0.9rem; color:#c8d4e3; }
-  select, input[type="number"], input[type="text"] { width: 100%; padding:10px; border-radius:10px; border:1px solid #2a2f3a; background:#141821; color:#eaeef2; }
-  .row { display:flex; gap:8px; }
-  .row > * { flex:1; }
-  button { padding:10px 12px; border-radius:12px; border:1px solid #2a2f3a; background:#1b2130; color:#eaeef2; cursor:pointer; transition:all .2s ease; }
-  button:hover:not(:disabled) { background:#252d3f; border-color:#3a4458; transform:translateY(-1px); }
-  button.primary { background:#0ea36e; border-color:#0ea36e; color:white; }
-  button.primary:hover:not(:disabled) { background:#0c8a5a; }
-  button:disabled { opacity:.6; cursor:not-allowed; }
-  .btnbar { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .grid { display:grid; gap:8px; grid-template-columns: repeat(2, 1fr); }
-  @media (min-width: 480px) { .grid { grid-template-columns: repeat(3, 1fr);} }
-  @media (min-width: 768px) { .grid { grid-template-columns: repeat(5, 1fr);} }
-  pre { background:#0b0e14; border:1px solid #2a2f3a; border-radius:12px; padding:10px; max-height:40vh; overflow:auto; }
-  small { color:#9fb3c8; }
-  .pill { padding:2px 8px; border-radius:999px; background:#20283a; color:#cfe7dc; font-size:.72rem; }
-  .range-row { display:flex; align-items:center; gap:10px; }
-  .range-row input[type="range"] { flex:1; accent-color:#10b981; }
-  .range-row .val { width:36px; text-align:right; color:#9fb3c8; font-size:.85rem; }
-  .right { text-align:right; }
-  footer { text-align:center; padding:20px 10px; margin-top:30px; border-top:1px solid #2a2f3a; color:#6b7789; font-size:0.9rem; }
-  footer a { color:#10b981; text-decoration:none; transition:color .2s ease; }
-  footer a:hover { color:#0ea36e; text-decoration:underline; }
-  dialog { border:none; border-radius:16px; padding:0; background:#0f1115; color:#eaeef2; width:min(680px, 96vw); }
-  .dialog-inner { padding:12px; }
-  textarea { width:100%; height:50vh; border-radius:12px; background:#0b0e14; color:#eaeef2; border:1px solid #2a2f3a; padding:10px; font-family:ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; }
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="title" content="GP5 Controller - v0.3" />
+    <meta name="description" content="Advanced controller for Valeton GP5 using JSON config" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>GP5 Controller</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            padding: 0;
+            margin: 0;
+            background: #0a0a0a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            overflow-x: hidden;
+            padding-bottom: 60px;
+        }
+        
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .connect-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .connect-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Patch Selector */
+        .patch-selector-wrapper {
+            text-align: center;
+        }
+        
+        .patch-select {
+            width: 100%;
+            max-width: 400px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .patch-nav-buttons {
+            display: flex;
+            gap: 0;
+            margin-top: 15px;
+        }
+        
+        .patch-nav-btn {
+            flex: 1;
+            height: 60px;
+            background: #0d6efd;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .patch-nav-btn:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .patch-nav-btn:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .patch-nav-btn:active {
+            transform: scale(0.98);
+            background: #0a58ca;
+        }
+        
+        .patch-nav-btn:disabled {
+            background: #333;
+            opacity: 0.5;
+        }
+        
+        /* Blocks Grid */
+        .blocks-section {
+            padding: 15px;
+        }
+        
+        .blocks-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .blocks-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        @media (min-width: 576px) {
+            .blocks-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .blocks-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        
+        .block-btn {
+            background: #1a1a2e;
+            border: 2px solid #2a2a3e;
+            padding: 20px 10px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .block-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .block-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .block-btn:active::before {
+            left: 100%;
+        }
+        
+        .block-btn.active {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            border-color: #0d6efd;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+        }
+        
+        .block-label {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        
+        .block-status {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        .block-btn.active .block-status {
+            color: #fff;
+        }
+        
+        /* Effect Panel */
+        .effect-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #16213e;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 200;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .effect-panel.active,
+        .effect-panel.show {
+            transform: translateY(0);
+        }
+        
+        .effect-header {
+            padding: 20px;
+            border-bottom: 1px solid #2a2a3e;
+            position: sticky;
+            top: 0;
+            background: #16213e;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .effect-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+        
+        .close-panel {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #ff3b30;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .effect-content {
+            padding: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .effect-select {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #0d6efd;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        .switch-label {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        /* Parameters */
+        .param-item {
+            margin-bottom: 25px;
+        }
+        
+        .param-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .param-name {
+            font-size: 0.95rem;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .param-value {
+            background: #0d6efd;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        
+        .param-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .param-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0d6efd;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(13, 110, 253, 0.5);
+        }
+        
+        .param-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0d6efd;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(13, 110, 253, 0.5);
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-top: 1px solid #2a2a3e;
+            z-index: 50;
+            font-size: 0.8rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #333;
+            border-top-color: #0d6efd;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        
+        .spinner.active {
+            display: block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .empty-text {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .empty-subtext {
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-
-
-<fieldset>
-  <button id="btnConnect" style="width:100%; padding:16px; font-size:1.05rem; font-weight:600; background:#475569; border-color:#475569; color:#fff; transition:all .3s ease;">
-    Connect GP-5
-  </button>
-</fieldset>
-
-<fieldset>
-  <legend>🎚️ Presets</legend>
-  <div style="display:flex; gap:12px; margin-bottom:16px;">
-    <div style="flex:1; text-align:center;">
-      <div style="display:inline-block; background:#1b2130; border:2px solid #2a2f3a; border-radius:16px; padding:8px; min-width:120px;">
-        <div style="font-size:0.75rem; color:#9fb3c8; margin-bottom:2px;">Current Preset</div>
-        <div id="currentPresetDisplay" style="font-size:2rem; font-weight:700; color:#10b981;">--</div>
-      </div>
+    <!-- Header -->
+    <div class="app-header">
+        <div class="header-row">
+                <div style="display:flex; gap:8px; align-items:center; width:100%; justify-content:flex-end;">
+                    <select id="connectionModeSelect" class="form-select form-select-sm" style="width:auto; margin-right:8px;">
+                        <option value="bluetooth" selected>Bluetooth</option>
+                        <option value="usb">USB</option>
+                    </select>
+                    <button id="btnConnect" class="connect-btn btn btn-primary">
+                        <span id="connectionStatus">⚫</span> Connect
+                    </button>
+                </div>
+            </div>
+        
+        <!-- Patch Selector -->
+        <div class="patch-selector-wrapper">
+            <select id="patchSelect" class="patch-select" disabled>
+                <option value="">Connect GP5 to load patches...</option>
+            </select>
+            <div class="patch-nav-buttons">
+                <button id="btnPrevPatch" class="patch-nav-btn" disabled>◀ PREV</button>
+                <button id="btnNextPatch" class="patch-nav-btn" disabled>NEXT ▶</button>
+            </div>
+        </div>
     </div>
-    <div style="flex:0 0 auto;">
-      <button id="btnTuner" disabled style="width:140px; height:100%; padding:12px; font-size:0.95rem; font-weight:700; border-radius:12px; border:2px solid #2a2f3a; background:#1b2130; color:#9fb3c8; cursor:pointer; transition:all 0.3s ease; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
-        <span style="font-size:1.5rem;">🎼</span>
-        <span style="font-size:0.85rem;">Tuner</span>
-      </button>
+
+    <!-- Blocks Grid -->
+    <div class="blocks-section">
+        <div class="blocks-title">Effect Blocks</div>
+        <div class="blocks-grid" id="blocksContainer">
+            <!-- Blocks will be inserted here -->
+        </div>
     </div>
-  </div>
-  <div class="row" style="gap:10px; margin-bottom:12px;">
-    <button id="btnPrev" disabled style="flex:1; padding:16px; font-size:1.1rem; background:#1b2130; display:flex; align-items:center; justify-content:center; gap:8px;">
-      <span style="font-size:1.5rem;">◀</span>
-      <span>Previous</span>
-    </button>
-    <button id="btnNext" disabled style="flex:1; padding:16px; font-size:1.1rem; background:#1b2130; display:flex; align-items:center; justify-content:center; gap:8px;">
-      <span>Next</span>
-      <span style="font-size:1.5rem;">▶</span>
-    </button>
-  </div>
-  <div style="border-top:1px solid #2a2f3a; padding-top:12px; margin-top:12px;">
-    <label for="presetNum" style="display:block; text-align:center; margin-bottom:8px; color:#9fb3c8; font-size:0.85rem;">Go to specific preset (00–99)</label>
-    <div class="row" style="gap:8px;">
-      <input type="number" id="presetNum" min="0" max="99" value="0" style="flex:1; text-align:center; font-size:1.1rem; font-weight:600;">
-      <button id="btnSendPreset" disabled class="primary" style="flex:0 0 auto; padding:10px 20px;">Go →</button>
+
+    <!-- Effect Panel (Bottom Sheet) -->
+    <div class="effect-panel" id="effectPanel">
+        <div class="effect-header">
+            <h2 class="effect-title" id="panelTitle">Select a block</h2>
+            <button class="close-panel" id="closePanel">×</button>
+        </div>
+        <div class="effect-content" id="effectContent">
+            <div class="empty-state">
+                <div class="empty-icon">🎛️</div>
+                <div class="empty-text">No block selected</div>
+                <div class="empty-subtext">Tap on any effect block above to edit</div>
+            </div>
+        </div>
     </div>
-  </div>
-</fieldset>
 
-
-<fieldset>
-  <legend>️ Modules</legend>
-  <div id="modsGrid" class="grid"></div>
-</fieldset>
-
-<fieldset>
-  <legend>🎵 Parameters</legend>
-  <div id="paramsList" class="col"></div>
-  <div class="btnbar">
-    <button id="btnEditMap" disabled>Edit CC Map</button>
-  </div>
-</fieldset>
-
-<fieldset>
-  <legend>📋 Logs</legend>
-  <pre id="log"></pre>
-</fieldset>
-
-<dialog id="mapDialog">
-  <div class="dialog-inner">
-    <div class="row" style="align-items:center; margin-bottom:8px;">
-      <div style="font-weight:600;">Edit CC Map (JSON)</div>
-      <div class="right"><button id="btnCloseMap">Close</button></div>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span class="status-text" id="statusText">Waiting for connection...</span>
+        <div class="spinner" id="spinner"></div>
     </div>
-    <textarea id="mapTextarea"></textarea>
-    <div class="row" style="margin-top:8px;">
-      <button id="btnResetMap">Reset to Default</button>
-      <button id="btnApplyMap" class="primary">Apply</button>
-    </div>
-  </div>
-</dialog>
 
-<script>
-// ——— util ———
-const LS = {
-  channel: "gp5.channel",
-  outputId: "gp5.outputId",
-  ccMap: "gp5.ccMap",
-  preset: "gp5.preset",
-};
-const clamp = (v,min=0,max=127)=> Math.min(max, Math.max(min, v|0));
-const logEl = document.getElementById('log');
-const log = (...a)=>{ logEl.textContent += a.join(' ') + "\\n"; logEl.scrollTop = logEl.scrollHeight; };
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==================== CONFIGURAÇÃO ====================
+        let gp5Config = null;
+        let device = null;
+        let writeChar = null;
+        let notifyChar = null;
+        
+    // Connection mode: 'bluetooth' (default) or 'usb'
+    let connectionMode = 'bluetooth';
 
-// ——— elementos ———
-const btnConnect = document.getElementById('btnConnect');
-const btnSendPreset = document.getElementById('btnSendPreset');
-const btnPrev = document.getElementById('btnPrev');
-const btnNext = document.getElementById('btnNext');
-const btnTuner = document.getElementById('btnTuner');
-const presetNum = document.getElementById('presetNum');
-const currentPresetDisplay = document.getElementById('currentPresetDisplay');
-const modsGrid = document.getElementById('modsGrid');
-const paramsList = document.getElementById('paramsList');
-const btnEditMap = document.getElementById('btnEditMap');
-const mapDialog = document.getElementById('mapDialog');
-const mapTextarea = document.getElementById('mapTextarea');
-const btnApplyMap = document.getElementById('btnApplyMap');
-const btnCloseMap = document.getElementById('btnCloseMap');
-const btnResetMap = document.getElementById('btnResetMap');
+    // MIDI / USB state (for USB mode)
+    let midiAccess = null;
+    let midiOut = null;
+    let midiIn = null;
+    let CC_COMMANDS = null; // loaded from cc_commands.json
+        
+        // Estado do dispositivo
+        let deviceState = {
+            connected: false,
+            currentPatch: 0,
+            patchNames: [],
+            blocks: {},
+            snaptoneNames: [],
+            irNames: []
+        };
 
-// ——— canal fixo (sempre canal 1) ———
-const MIDI_CHANNEL = 0; // Canal 1 (0-indexed)
+        // ==================== INITIALIZATION ====================
+        async function init() {
+            try {
+                // Load JSON configuration
+                const response = await fetch('ble_sysex.json');
+                gp5Config = await response.json();
+                console.log('[init] gp5Config loaded:', gp5Config);
+                
+                // Try to load cc commands for USB mode (best-effort)
+                try {
+                    const resp = await fetch('cc_commands.json');
+                    CC_COMMANDS = await resp.json();
+                    console.log('[init] cc_commands.json loaded:', CC_COMMANDS);
+                } catch (e) {
+                    console.warn('[init] cc_commands.json not found or invalid', e);
+                    CC_COMMANDS = null;
+                }
 
-// ——— mapa padrão (ajuste conforme manual) ———
-const DEFAULT_CC_MAP = {
-  presetSelect: { cc: 0, label: "Preset (0–99)" },
-  patchVolume: { cc: 7, label: "Patch Volume (0-100)" },
-  bankPrev: { cc: 22, label: "Bank − (ten digit)" },
-  bankNext: { cc: 23, label: "Bank + (ten digit)" },
-  patchPrev: { cc: 24, label: "Patch −" },
-  patchNext: { cc: 25, label: "Patch +" },
-  songPrev: { cc: 29, label: "Song Patch −" },
-  songNext: { cc: 30, label: "Song Patch +" },
-  tuner: { cc: 58, label: "Tuner On/Off" },
-  ctl: { cc: 69, label: "CTL" },
-  modules: [
-    { key:"nr",     label:"NR", cc:48 },
-    { key:"pre",    label:"PRE", cc:49 },
-    { key:"dst",    label:"DST", cc:50 },
-    { key:"ns",     label:"N→S", cc:51 },
-    { key:"amp",    label:"AMP",                  cc:52 },
-    { key:"cab",    label:"CAB",                  cc:53 },
-    { key:"eq",     label:"EQ",                   cc:54 },
-    { key:"mod",    label:"MOD",                  cc:55 },
-    { key:"dly",    label:"DLY",          cc:56 },
-    { key:"rvb",    label:"RVB",         cc:57 }
-  ],
-  params: [
-    { key:"patch_volume", label:"Patch Volume", cc:7, min:0, max:100 }
-  ]
-};
+                log('Configuration loaded successfully!');
+                setupUI();
+                setupEventListeners();
+            } catch (error) {
+                log('Error loading configuration: ' + error.message, 'error');
+                console.error('[init] Error:', error);
+            }
+        }
 
-function loadMap(){
-  try{
-    const raw = localStorage.getItem(LS.ccMap);
-    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_CC_MAP));
-    return JSON.parse(raw);
-  }catch{ return JSON.parse(JSON.stringify(DEFAULT_CC_MAP)); }
-}
-let CC_MAP = loadMap();
-mapTextarea.value = JSON.stringify(CC_MAP, null, 2);
+        // ==================== UI FUNCTIONS ====================
+        function setupUI() {
+            const blocksContainer = document.getElementById('blocksContainer');
+            
+            gp5Config.blocks.forEach(block => {
+                const btn = document.createElement('button');
+                btn.className = 'block-btn';
+                btn.id = `block-${block.name}`;
+                btn.dataset.blockId = block.id;
+                btn.dataset.blockName = block.name;
+                btn.innerHTML = `
+                    <div class="block-label">${block.label}</div>
+                    <div class="block-effect">OFF</div>
+                `;
+                btn.disabled = true;
+                
+                btn.addEventListener('click', () => {
+                    console.log('Block clicked:', block.label);
+                    showBlockDetails(block);
+                });
+                
+                blocksContainer.appendChild(btn);
+            });
+            
+            console.log('UI setup complete, blocks created:', gp5Config.blocks.length);
+        }
 
-// ——— MIDI ———
-let midiAccess=null;
-let midiOut=null;
-let midiIn=null; // Para receber mensagens MIDI da GP-5
+        function setupEventListeners() {
+            document.getElementById('btnConnect').addEventListener('click', async () => {
+                const modeEl = document.getElementById('connectionModeSelect');
+                const mode = modeEl ? modeEl.value : 'bluetooth';
+                connectionMode = mode;
+                if (mode === 'bluetooth') {
+                    await connectDevice();
+                } else {
+                    await connectMidi();
+                }
+            });
+            const modeEl = document.getElementById('connectionModeSelect');
+            if (modeEl) {
+                modeEl.addEventListener('change', (e) => {
+                    connectionMode = e.target.value;
+                    document.getElementById('statusText').textContent = `Mode: ${connectionMode.toUpperCase()}. Waiting for connection...`;
+                });
+            }
+            document.getElementById('patchSelect').addEventListener('change', changePatch);
+            document.getElementById('btnPrevPatch').addEventListener('click', () => navigatePatch(-1));
+            document.getElementById('btnNextPatch').addEventListener('click', () => navigatePatch(1));
+            document.getElementById('closePanel').addEventListener('click', closeEffectPanel);
+            
+            // Close panel on backdrop click
+            document.getElementById('effectPanel').addEventListener('click', (e) => {
+                if (e.target.id === 'effectPanel') {
+                    closeEffectPanel();
+                }
+            });
+        }
+        
+        function closeEffectPanel() {
+            document.getElementById('effectPanel').classList.remove('active');
+        }
 
-function enableControls(enabled){
-  btnSendPreset.disabled = btnPrev.disabled = btnNext.disabled = btnEditMap.disabled = btnTuner.disabled = !enabled;
-  // modules/params toggles will be enabled/disabled by rebuilding UI
-}
+        function showBlockDetails(block, useCenteredDefaults = false) {
+            console.log('showBlockDetails called for:', block.label, 'useCenteredDefaults:', useCenteredDefaults);
+            
+            const panel = document.getElementById('effectPanel');
+            const panelTitle = document.getElementById('panelTitle');
+            const contentDiv = document.getElementById('effectContent');
+            
+            if (!panel || !panelTitle || !contentDiv) {
+                console.error('Panel elements not found!');
+                return;
+            }
+            
+            // Update title
+            panelTitle.textContent = block.label;
+            
+            // Get current effect for this block
+            const currentEffect = deviceState.blocks[block.name]?.effect || 0;
+            const effectsList = Object.entries(block.effects || {});
+            
+            console.log('Current effect:', currentEffect, 'Effects list:', effectsList.length);
+            
+            let html = `
+                <div class="control-group">
+                    <label class="control-label">Effect</label>
+                    <select class="effect-select" id="effect-select-${block.name}" 
+                            data-block-id="${block.id}" data-block-name="${block.name}">
+            `;
+            
+            effectsList.forEach(([effectId, effectData]) => {
+                const selected = effectData.id === currentEffect ? 'selected' : '';
+                html += `<option value="${effectData.id}" data-effect-id="${effectId}" ${selected}>
+                    ${effectData.name}
+                </option>`;
+            });
+            
+            html += `
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   id="block-toggle-${block.name}" 
+                                   data-block-id="${block.id}"
+                                   ${deviceState.blocks[block.name]?.enabled ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">
+                            ${deviceState.blocks[block.name]?.enabled ? 'ON' : 'OFF'}
+                        </span>
+                    </label>
+                </div>
+                
+                <div id="parameters-${block.name}">
+            `;
+            
+            // Add parameters - find effect by matching ID
+            const currentEffectData = effectsList.find(([id, e]) => {
+                // Try to match by converting both to comparable format
+                const normalizedId = id.toLowerCase();
+                const normalizedCurrent = currentEffect.toString(16).padStart(8, '0');
+                return normalizedId === normalizedCurrent || e.id === currentEffect;
+            })?.[1];
+            
+            if (currentEffectData?.parameters) {
+                currentEffectData.parameters.forEach((param, index) => {
+                    let value;
+                    if (useCenteredDefaults) {
+                        // Use centered value when changing effects
+                        value = Math.round((param.min + param.max) / 2);
+                    } else {
+                        // Use device value or parameter default
+                        value = deviceState.blocks[block.name]?.parameters?.[index] ?? param.default;
+                    }
+                    html += createParameterControl(block, param, index, value);
+                });
+            }
+            
+            html += `</div>`;
+            
+            contentDiv.innerHTML = html;
+            panel.classList.add('active');
+            
+            console.log('Panel activated:', panel.classList.contains('active'));
+            
+            // Add event listeners
+            const effectSelect = document.getElementById(`effect-select-${block.name}`);
+            if (effectSelect) {
+                effectSelect.addEventListener('change', (e) => {
+                    const blockId = parseInt(e.target.dataset.blockId);
+                    const effectId = e.target.options[e.target.selectedIndex].dataset.effectId;
+                    
+                    // Clear stored parameters when changing effect
+                    if (deviceState.blocks[block.name]) {
+                        deviceState.blocks[block.name].parameters = [];
+                    }
+                    
+                    sendBlockChange(blockId, effectId);
+                    
+                    // Refresh parameters with centered defaults
+                    setTimeout(() => showBlockDetails(block, true), 200);
+                });
+            }
+            
+            const blockToggle = document.getElementById(`block-toggle-${block.name}`);
+            if (blockToggle) {
+                blockToggle.addEventListener('change', (e) => {
+                    const blockId = parseInt(e.target.dataset.blockId);
+                    const label = e.target.closest('.toggle-switch').querySelector('.switch-label');
+                    label.textContent = e.target.checked ? 'ON' : 'OFF';
+                    sendBlockStatus(blockId, e.target.checked ? '1' : '0');
+                });
+            }
+        }
 
-// Build modules UI - Botões maiores e mais visíveis
-const moduleStates = {};
-function buildModules(){
-  modsGrid.innerHTML = "";
-  CC_MAP.modules.forEach(m => {
-    const btn = document.createElement('button');
-    btn.className = 'module-btn';
-    btn.textContent = m.label;
-    btn.dataset.key = m.key;
-    btn.style.cssText = `
-      padding: 16px 12px;
-      border-radius: 10px;
-      border: 2px solid #2a2f3a;
-      background: #1b2130;
-      color: #9fb3c8;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      text-align: center;
-    `;
-    
-    const setOn = (on)=>{
-      moduleStates[m.key] = !!on;
-      if (on) {
-        btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-        btn.style.borderColor = '#10b981';
-        btn.style.color = '#fff';
-        btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
-      } else {
-        btn.style.background = '#1b2130';
-        btn.style.borderColor = '#2a2f3a';
-        btn.style.color = '#9fb3c8';
-        btn.style.boxShadow = 'none';
-      }
-    };
-    
-    setOn(!!moduleStates[m.key]);
-    
-    btn.onclick = ()=>{
-      const now = !moduleStates[m.key];
-      setOn(now);
-      if (midiOut) {
-        midiOut.send([0xB0 | MIDI_CHANNEL, clamp(m.cc,0,127), now?127:0]);
-        log(`${m.label}: ${now?'ON':'OFF'}`);
-      }
-    };
-    
-    btn.onmouseenter = ()=> {
-      if (!moduleStates[m.key]) {
-        btn.style.borderColor = '#3a4458';
-        btn.style.transform = 'translateY(-2px)';
-      }
-    };
-    
-    btn.onmouseleave = ()=> {
-      if (!moduleStates[m.key]) {
-        btn.style.borderColor = '#2a2f3a';
-        btn.style.transform = 'translateY(0)';
-      }
-    };
-    
-    modsGrid.appendChild(btn);
-  });
-}
+        function createParameterControl(block, param, index, value) {
+            const inputId = `param-${block.name}-${index}`;
+            return `
+                <div class="param-item">
+                    <div class="param-header">
+                        <span class="param-name">${param.name}</span>
+                        <span class="param-value" id="${inputId}-value">${value}</span>
+                    </div>
+                    <input type="range" 
+                           class="param-slider" 
+                           id="${inputId}"
+                           min="${param.min}" 
+                           max="${param.max}" 
+                           step="${param.step}" 
+                           value="${value}"
+                           data-block-id="${block.id}"
+                           data-param-index="${index}"
+                           oninput="updateParameter(this)">
+                </div>
+            `;
+        }
 
-// Build parameters UI with debounced send
-const paramValues = {};
-const debouncers = {};
-function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms);} }
-function buildParams(){
-  paramsList.innerHTML = "";
-  CC_MAP.params.forEach(p => {
-    const row = document.createElement('div');
-    row.style.marginBottom = '8px';
-    const head = document.createElement('div');
-    head.style.display='flex'; head.style.justifyContent='space-between';
-    head.style.marginBottom='6px';
-    head.innerHTML = `<div>${p.label}</div><div class="pill">CC#${p.cc==null?"—":p.cc}</div>`;
-    const rrow = document.createElement('div');
-    rrow.className = 'range-row';
-    const slider = document.createElement('input');
-    slider.type='range'; slider.min=p.min??0; slider.max=p.max??127; slider.value=paramValues[p.key] ?? 50;
-    const val = document.createElement('div'); val.className = 'val'; val.textContent = slider.value;
-    rrow.appendChild(slider); rrow.appendChild(val);
-    row.appendChild(head); row.appendChild(rrow);
-    paramsList.appendChild(row);
-    if (!debouncers[p.key]){
-      debouncers[p.key] = debounce((v)=>{
-        if (p.cc==null || midiOut==null) return;
-        midiOut.send([0xB0 | MIDI_CHANNEL, clamp(p.cc,0,127), clamp(v, p.min??0, p.max??127)]);
-      }, 60);
-    }
-    slider.oninput = (e)=>{
-      const v = clamp(parseInt(e.target.value,10), p.min??0, p.max??127);
-      val.textContent = v;
-      paramValues[p.key] = v;
-      debouncers[p.key](v);
-    };
-  });
-}
+        function updateParameter(input) {
+            const value = parseFloat(input.value);
+            const blockId = parseInt(input.dataset.blockId);
+            const paramIndex = parseInt(input.dataset.paramIndex);
+            
+            // Atualizar display
+            document.getElementById(`${input.id}-value`).textContent = value;
+            
+            // Debounce para enviar comando
+            clearTimeout(input.debounceTimer);
+            input.debounceTimer = setTimeout(() => {
+                sendParamChange(blockId, paramIndex, value);
+            }, 100);
+        }
 
-function rebuildUI(){
-  buildModules();
-  buildParams();
-}
+        // ==================== BLUETOOTH ====================
+        async function connectDevice() {
+            if (!navigator.bluetooth) {
+                log('Web Bluetooth not supported in this browser!', 'error');
+                return;
+            }
 
-// MIDI helpers
-function listPorts(){
-  const outs = Array.from(midiAccess.outputs.values());
-  const ins = Array.from(midiAccess.inputs.values());
-  
-  // Tenta encontrar automaticamente a GP-5
-  const gp5Out = outs.find(o=>/gp-?5/i.test(o.name)) || outs[0];
-  const gp5In = ins.find(i=>/gp-?5/i.test(i.name)) || ins[0];
-  
-  if (gp5Out) {
-    midiOut = gp5Out;
-    btnConnect.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-    btnConnect.style.borderColor = '#10b981';
-    btnConnect.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
-    btnConnect.textContent = '✅ Connected';
-    log(`✅ Connected: ${gp5Out.name}`);
-  } else {
-    btnConnect.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-    btnConnect.style.borderColor = '#ef4444';
-    btnConnect.textContent = '❌ Device not found';
-    log('⚠️ No MIDI output found');
-  }
-  
-  // Configura entrada MIDI para receber mensagens
-  if (gp5In) {
-    midiIn = gp5In;
-    midiIn.onmidimessage = handleMidiMessage;
-  }
-  
-  enableControls(!!midiOut);
-}
+            try {
+                log('Searching for GP5 device...');
+                showLoading(true);
+                
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [gp5Config.device.bluetooth.service_uuid] }]
+                });
+                
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+                
+                const server = await device.gatt.connect();
+                log(`Connected to ${device.name}`);
+                
+                const service = await server.getPrimaryService(gp5Config.device.bluetooth.service_uuid);
+                const characteristic = await service.getCharacteristic(gp5Config.device.bluetooth.characteristic_uuid);
+                
+                writeChar = characteristic;
+                notifyChar = characteristic;
+                
+                await notifyChar.startNotifications();
+                notifyChar.addEventListener('characteristicvaluechanged', handleNotification);
+                
+                log('Characteristics configured');
+                
+                // Start synchronization
+                await syncDevice();
+                
+                deviceState.connected = true;
+                updateConnectionStatus(true);
+                enableControls(true);
+                
+            } catch (error) {
+                log('Connection error: ' + error.message, 'error');
+                showLoading(false);
+            }
+        }
 
-// Processa mensagens MIDI recebidas da GP-5
-function handleMidiMessage(event) {
-  const [status, cc, value] = event.data;
-  const messageType = status & 0xF0;
-  
-  // Control Change (0xB0)
-  if (messageType === 0xB0) {
-    // Atualiza estado dos módulos (CC#48-57)
-    const module = CC_MAP.modules.find(m => m.cc === cc);
-    if (module) {
-      const isOn = value >= 64;
-      moduleStates[module.key] = isOn;
-      updateModuleUI(module.key, isOn);
-      log(`${module.label}: ${isOn?'ON':'OFF'}`);
-    }
-    
-    // Atualiza preset atual (CC#0)
-    if (cc === 0) {
-      updatePresetDisplay(value);
-    }
-    
-    // Atualiza volume (CC#7)
-    if (cc === 7) {
-      paramValues['patch_volume'] = value;
-      updateParamUI('patch_volume', value);
-    }
-    
-    // Atualiza estado do Tuner (CC#58)
-    if (cc === 58) {
-      tunerActive = value >= 64;
-      if (tunerActive) {
-        btnTuner.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-        btnTuner.style.borderColor = '#f59e0b';
-        btnTuner.style.color = '#fff';
-        btnTuner.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.5)';
-        btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">ACTIVE</span>';
-      } else {
-        btnTuner.style.background = '#1b2130';
-        btnTuner.style.borderColor = '#2a2f3a';
-        btnTuner.style.color = '#9fb3c8';
-        btnTuner.style.boxShadow = 'none';
-        btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">Tuner</span>';
-      }
-      log(`🎼 Tuner: ${tunerActive?'ON':'OFF'}`);
-    }
-  }
-}
+        // ==================== MIDI / USB MODE ====================
+        async function connectMidi() {
+            console.log('[connectMidi] Starting USB MIDI connection...');
+            
+            if (!navigator.requestMIDIAccess) {
+                log('Web MIDI not supported in this browser!', 'error');
+                console.error('[connectMidi] Web MIDI not supported');
+                return;
+            }
 
-// Atualiza UI de um módulo específico
-function updateModuleUI(key, isOn) {
-  const buttons = modsGrid.querySelectorAll('.module-btn');
-  const module = CC_MAP.modules.find(m => m.key === key);
-  if (!module) return;
-  
-  const idx = CC_MAP.modules.indexOf(module);
-  if (idx >= 0 && buttons[idx]) {
-    const btn = buttons[idx];
-    moduleStates[key] = isOn;
-    if (isOn) {
-      btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-      btn.style.borderColor = '#10b981';
-      btn.style.color = '#fff';
-      btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
-    } else {
-      btn.style.background = '#1b2130';
-      btn.style.borderColor = '#2a2f3a';
-      btn.style.color = '#9fb3c8';
-      btn.style.boxShadow = 'none';
-    }
-  }
-}
+            try {
+                log('Requesting MIDI access...');
+                midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+                console.log('[connectMidi] MIDI access granted:', midiAccess);
+                
+                midiAccess.onstatechange = () => {
+                    console.log('[connectMidi] MIDI state changed');
+                    listMidiPorts();
+                };
+                listMidiPorts();
+            } catch (err) {
+                log('MIDI connection error: ' + err.message, 'error');
+                console.error('[connectMidi] Error:', err);
+            }
+        }
 
-// Atualiza UI de um parâmetro específico
-function updateParamUI(key, value) {
-  const param = CC_MAP.params.find(p => p.key === key);
-  if (!param) return;
-  
-  const ranges = paramsList.querySelectorAll('input[type="range"]');
-  const idx = CC_MAP.params.indexOf(param);
-  if (idx >= 0 && ranges[idx]) {
-    ranges[idx].value = value;
-    const valDisplay = ranges[idx].parentElement.querySelector('.val');
-    if (valDisplay) valDisplay.textContent = value;
-  }
-}
+        function listMidiPorts() {
+            const outs = Array.from(midiAccess.outputs.values());
+            const ins = Array.from(midiAccess.inputs.values());
+            
+            console.log('[listMidiPorts] Available outputs:', outs.map(o => o.name));
+            console.log('[listMidiPorts] Available inputs:', ins.map(i => i.name));
 
-// Solicita o estado atual de todos os módulos
-// A GP-5 não tem um comando MIDI para solicitar estados,
-// então vamos alternar cada módulo 2x para obter o estado atual
-let isSyncing = false;
-async function requestModuleStates() {
-  if (isSyncing || !midiOut) return;
-  isSyncing = true;
-  btnSync.disabled = true;
-  btnSync.textContent = '⏳ Sincronizando...';
-  log('🔄 Iniciando sincronização dos módulos...');
-  
-  // Para cada módulo, vamos enviar o comando atual 2x com delay
-  // Isso força a GP-5 a responder com o estado
-  for (const module of CC_MAP.modules) {
-    // Envia toggle off e depois on para "acordar" o feedback
-    await sleep(50);
-    midiOut.send([0xB0 | MIDI_CHANNEL, module.cc, 0]);
-    await sleep(50);
-    midiOut.send([0xB0 | MIDI_CHANNEL, module.cc, 127]);
-    await sleep(50);
-  }
-  
-  log('✅ Sincronização concluída! Agora altere algo na pedaleira para ver o estado real.');
-  btnSync.textContent = '🔄 Sincronizar Estados dos Módulos';
-  btnSync.disabled = false;
-  isSyncing = false;
-}
+            const gp5Out = outs.find(o => /gp-?5/i.test(o.name)) || outs[0];
+            const gp5In = ins.find(i => /gp-?5/i.test(i.name)) || ins[0];
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+            if (gp5Out) {
+                midiOut = gp5Out;
+                deviceState.connected = true;
+                updateConnectionStatus(true);
+                log(`✅ MIDI Connected: ${gp5Out.name}`);
+                console.log('[listMidiPorts] MIDI output selected:', gp5Out);
+                
+                // Populate simple patch list for USB mode (0-99)
+                populateSimplePatchList();
+            } else {
+                midiOut = null;
+                deviceState.connected = false;
+                updateConnectionStatus(false);
+                log('⚠️ No MIDI output found');
+                console.warn('[listMidiPorts] No MIDI output available');
+            }
 
-function sendCC(cc, value){
-  if(!midiOut) return;
-  midiOut.send([0xB0 | MIDI_CHANNEL, clamp(cc,0,127), clamp(value,0,127)]);
-}
+            if (gp5In) {
+                midiIn = gp5In;
+                midiIn.onmidimessage = handleMidiMessage;
+                console.log('[listMidiPorts] MIDI input selected:', gp5In);
+            }
 
-// ——— eventos ———
-btnConnect.onclick = async ()=>{
-  try{
-    midiAccess = await navigator.requestMIDIAccess({ sysex:true });
-    midiAccess.onstatechange = ()=> listPorts();
-    listPorts();
-    enableControls(!!midiOut);
-  }catch(e){
-    btnConnect.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-    btnConnect.style.borderColor = '#ef4444';
-    btnConnect.textContent = '❌ Connection error';
-    log('Error obtaining MIDI access:', e);
-  }
-};
+            enableControls(!!midiOut);
+        }
+        
+        function populateSimplePatchList() {
+            const select = document.getElementById('patchSelect');
+            select.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Patch ${String(i).padStart(2, '0')}`;
+                select.appendChild(option);
+            }
+            
+            console.log('[populateSimplePatchList] 100 patches added to select');
+            log('USB mode: 100 patches available (0-99)');
+        }
 
-// Track current preset
-let currentPreset = parseInt(localStorage.getItem(LS.preset) || "0", 10);
-function updatePresetDisplay(val){
-  currentPreset = clamp(val, 0, 99);
-  currentPresetDisplay.textContent = String(currentPreset).padStart(2, '0');
-  localStorage.setItem(LS.preset, String(currentPreset));
-  presetNum.value = currentPreset; // Sincroniza o campo numérico
-}
-updatePresetDisplay(currentPreset);
+        function handleMidiMessage(event) {
+            const [status, cc, value] = event.data;
+            const messageType = status & 0xF0;
+            if (messageType === 0xB0 && CC_COMMANDS && CC_COMMANDS.commands) {
+                // modules
+                const module = CC_COMMANDS.commands.modules.find(m => m.cc === cc);
+                if (module) {
+                    const isOn = value >= 64;
+                    deviceState.blocks[module.key] = deviceState.blocks[module.key] || {};
+                    deviceState.blocks[module.key].enabled = isOn;
+                    updateBlocksStatus();
+                    log(`${module.label}: ${isOn ? 'ON' : 'OFF'}`);
+                    return;
+                }
 
-btnSendPreset.onclick = ()=>{
-  const v = clamp(parseInt(presetNum.value,10) || 0, 0, 99);
-  sendCC(CC_MAP.presetSelect.cc, v);
-  updatePresetDisplay(v);
-};
-btnPrev.onclick = ()=>{ 
-  const newPreset = clamp(currentPreset - 1, 0, 99);
-  sendCC(CC_MAP.presetSelect.cc, newPreset);
-  updatePresetDisplay(newPreset);
-};
-btnNext.onclick = ()=>{ 
-  const newPreset = clamp(currentPreset + 1, 0, 99);
-  sendCC(CC_MAP.presetSelect.cc, newPreset);
-  updatePresetDisplay(newPreset);
-};
+                // preset
+                if (cc === CC_COMMANDS.commands.presetSelect.cc) {
+                    document.getElementById('statusText').textContent = `Preset changed: ${value}`;
+                    // try to update UI select if present
+                    const sel = document.getElementById('patchSelect');
+                    if (sel && sel.options.length > value) sel.value = value;
+                    return;
+                }
 
-// Tuner control
-let tunerActive = false;
-btnTuner.onclick = ()=>{
-  tunerActive = !tunerActive;
-  sendCC(CC_MAP.tuner.cc, tunerActive ? 127 : 0);
-  
-  if (tunerActive) {
-    btnTuner.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-    btnTuner.style.borderColor = '#f59e0b';
-    btnTuner.style.color = '#fff';
-    btnTuner.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.5)';
-    btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">ACTIVE</span>';
-    log('🎼 Tuner: ON');
-  } else {
-    btnTuner.style.background = '#1b2130';
-    btnTuner.style.borderColor = '#2a2f3a';
-    btnTuner.style.color = '#9fb3c8';
-    btnTuner.style.boxShadow = 'none';
-    btnTuner.innerHTML = '<span style="font-size:1.5rem;">🎼</span><span style="font-size:0.85rem;">Tuner</span>';
-    log('🎼 Tuner: OFF');
-  }
-};
+                // params
+                const p = (CC_COMMANDS.commands.params || []).find(x => x.cc === cc);
+                if (p) {
+                    // only patch_volume known for now
+                    if (p.key === 'patch_volume') {
+                        // update status text and (if available) UI
+                        document.getElementById('statusText').textContent = `Patch Volume: ${value}`;
+                    }
+                }
+            }
+        }
 
+        function onDisconnected() {
+            log('Device disconnected');
+            deviceState.connected = false;
+            device = null;
+            writeChar = null;
+            notifyChar = null;
+            updateConnectionStatus(false);
+            enableControls(false);
+        }
 
-// Editar mapa de CC
-btnEditMap.onclick = ()=>{ mapTextarea.value = JSON.stringify(CC_MAP, null, 2); mapDialog.showModal(); };
-btnCloseMap.onclick = ()=> mapDialog.close();
-btnResetMap.onclick = ()=>{ mapTextarea.value = JSON.stringify(DEFAULT_CC_MAP, null, 2); };
-btnApplyMap.onclick = ()=>{
-  try{
-    const obj = JSON.parse(mapTextarea.value);
-    CC_MAP = obj;
-    localStorage.setItem(LS.ccMap, JSON.stringify(CC_MAP));
-    rebuildUI();
-    mapDialog.close();
-  }catch{ alert('Invalid JSON'); }
-};
+        async function syncDevice() {
+            log('Syncing device...');
+            
+            // Send sync commands in sequence
+            await sendSysex(gp5Config.sync_commands.start_sync.sysex);
+            await sleep(100);
+            
+            await sendSysex(gp5Config.sync_commands.request_patch_list.sysex);
+            await sleep(100);
+        }
 
-// Inicializa UI
-rebuildUI();
-enableControls(false);
-</script>
+        // ==================== NOTIFICATIONS ====================
+        function handleNotification(event) {
+            const value = event.target.value;
+            const bytes = [];
+            for (let i = 0; i < value.byteLength; i++) {
+                bytes.push(value.getUint8(i));
+            }
+            
+            // Log for debug
+            console.log('Notification:', bytes.length, 'bytes - [5]:', bytes[5], '[6]:', bytes[6], '[7]:', bytes[7], '[8]:', bytes[8]);
+            
+            // Process different notification types
+            if (bytes[5] === 1 && bytes[6] === 5 && bytes.length === 212) {
+                // Patch list
+                parsePatchNames(bytes);
+            } else if (bytes[5] === 1 && bytes[6] === 5 && bytes[7] === 1 && bytes[8] === 4 && bytes.length === 16) {
+                // End of patch list
+                populatePatchList();
+                sendSysex(gp5Config.sync_commands.request_snaptones.sysex);
+            } else if (bytes[5] === 0 && bytes[6] === 14 && bytes.length === 136) {
+                // End of snaptones
+                log('Snaptones loaded');
+                sendSysex(gp5Config.sync_commands.request_ir_list.sysex);
+            } else if (bytes[5] === 0 && bytes[6] === 4 && bytes.length === 96) {
+                // End of IRs
+                log('IRs loaded');
+                sendSysex(gp5Config.sync_commands.request_current_patch_number.sysex);
+            } else if (bytes[5] === 0 && bytes[6] === 1 && bytes[10] === 4 && bytes[11] === 1 && bytes[12] === 2 && bytes.length === 20) {
+                // Current patch number
+                const newPatch = bytes[15] * 16 + bytes[16];
+                console.log('Current patch:', newPatch);
+                
+                // Clear previous state
+                deviceState.blocks = {};
+                deviceState.currentPatch = newPatch;
+                document.getElementById('patchSelect').value = newPatch;
+                
+                log('Patch ' + newPatch + ' active, loading data...');
+                setTimeout(() => {
+                    sendSysex(gp5Config.sync_commands.request_patch_data.sysex);
+                }, 100);
+            } else if (bytes[5] === 0 && bytes[6] === 5 && bytes.length === 212) {
+                // Patch data
+                if (bytes[7] === 0 && bytes[8] === 0) {
+                    log('Reading patch data (part 1/4)');
+                    parsePatchData1(bytes);
+                } else if (bytes[7] === 0 && bytes[8] === 1) {
+                    log('Reading patch data (part 2/4)');
+                    parsePatchData2(bytes);
+                } else if (bytes[7] === 0 && bytes[8] === 2) {
+                    log('Reading patch data (part 3/4)');
+                    parsePatchData3(bytes);
+                } else if (bytes[7] === 0 && bytes[8] === 3) {
+                    log('Reading patch data (part 4/4)');
+                    parsePatchData4(bytes);
+                }
+            } else if (bytes[5] === 0 && bytes[6] === 5 && bytes.length === 148 && bytes[7] === 0 && bytes[8] === 4) {
+                // End of patch data
+                log('Reading patch data (final)');
+                parsePatchDataFinal(bytes);
+                log('GP5 synced successfully!');
+                showLoading(false);
+                updateBlocksStatus();
+            } else if (bytes[5] === 0 && bytes[6] === 1 && bytes[12] === 2 && bytes[13] === 4 && bytes[14] === 3 && bytes.length === 24) {
+                // Patch changed on GP5
+                const newPatch = bytes[15] * 16 + bytes[16];
+                console.log('Patch changed on device to:', newPatch);
+                
+                // Clear previous state
+                deviceState.blocks = {};
+                deviceState.currentPatch = newPatch;
+                document.getElementById('patchSelect').value = newPatch;
+                
+                log('Patch changed to ' + newPatch + ', loading data...');
+                setTimeout(() => {
+                    sendSysex(gp5Config.sync_commands.request_patch_data.sysex);
+                }, 100);
+            }
+        }
 
-<footer>
-  <div style="font-weight:600; margin-bottom:8px;">GP-5 Web Controller</div>
-  <div>
-    Developed by <a href="https://github.com/helvecioneto/" target="_blank" rel="noopener noreferrer">Helvecio Neto</a> © 2025
-  </div>
-</footer>
+        // Funções para parsear dados do patch
+        function parsePatchData1(bytes) {
+            // Extrair status dos blocos (bytes 151-152, 154)
+            const blockStatus = {
+                nr:  Boolean(bytes[152] & (1 << 0)),
+                pre: Boolean(bytes[152] & (1 << 1)),
+                dst: Boolean(bytes[152] & (1 << 2)),
+                amp: Boolean(bytes[152] & (1 << 3)),
+                cab: Boolean(bytes[151] & (1 << 0)),
+                eq:  Boolean(bytes[151] & (1 << 1)),
+                mod: Boolean(bytes[151] & (1 << 2)),
+                dly: Boolean(bytes[151] & (1 << 3)),
+                rvb: Boolean(bytes[154] & (1 << 0)),
+                ns:  Boolean(bytes[154] & (1 << 1))
+            };
+            
+            // Atualizar estado
+            Object.keys(blockStatus).forEach(blockName => {
+                if (!deviceState.blocks[blockName]) {
+                    deviceState.blocks[blockName] = {};
+                }
+                deviceState.blocks[blockName].enabled = blockStatus[blockName];
+            });
+            
+            // Extrair efeito PRE
+            const preEffectId = getEffectId(bytes, 203);
+            console.log('PRE Effect ID:', preEffectId);
+        }
 
+        function parsePatchData2(bytes) {
+            // Extrair IDs dos efeitos
+            const effects = {
+                dst: getEffectId(bytes, 11),
+                ns:  getEffectId(bytes, 67),
+                amp: getEffectId(bytes, 19),
+                cab: getEffectId(bytes, 27),
+                eq:  getEffectId(bytes, 35),
+                mod: getEffectId(bytes, 43),
+                dly: getEffectId(bytes, 51),
+                rvb: getEffectId(bytes, 59)
+            };
+            
+            console.log('Effects extracted:', effects);
+            
+            // Atualizar estado com os IDs dos efeitos
+            Object.keys(effects).forEach(blockName => {
+                if (!deviceState.blocks[blockName]) {
+                    deviceState.blocks[blockName] = {};
+                }
+                deviceState.blocks[blockName].effectId = effects[blockName];
+                
+                // Encontrar o índice do efeito baseado no ID
+                const block = gp5Config.blocks.find(b => b.name === blockName);
+                if (block && block.effects) {
+                    const effectData = block.effects[effects[blockName]];
+                    if (effectData) {
+                        deviceState.blocks[blockName].effect = effectData.id;
+                        deviceState.blocks[blockName].effectName = effectData.name;
+                        console.log(`${blockName} -> ${effectData.name} (ID: ${effects[blockName]})`);
+                    } else {
+                        console.warn(`Effect ID not found for ${blockName}: ${effects[blockName]}`);
+                    }
+                }
+            });
+        }
+
+        function parsePatchData3(bytes) {
+            // Aqui podemos extrair parâmetros se necessário
+            console.log('Parsing patch data part 3');
+        }
+
+        function parsePatchData4(bytes) {
+            // Aqui podemos extrair mais parâmetros se necessário
+            console.log('Parsing patch data part 4');
+        }
+
+        function parsePatchDataFinal(bytes) {
+            // Dados finais do patch
+            console.log('Parsing final patch data');
+        }
+
+        function getEffectId(bytes, start) {
+            // Debug: mostrar os bytes brutos
+            console.log(`Reading effect ID from position ${start}:`);
+            const rawBytes = [];
+            for (let i = 0; i < 16; i++) {
+                if (bytes[start + i] !== undefined) {
+                    rawBytes.push(bytes[start + i].toString(16).padStart(2, '0'));
+                }
+            }
+            console.log('Raw bytes (16):', rawBytes.join(' '));
+            
+            let id = '';
+            // Tentar ler direto sem pular bytes
+            for (let i = 0; i < 8; i++) {
+                if (bytes[start + i] !== undefined) {
+                    id += bytes[start + i].toString(16).padStart(2, '0');
+                }
+            }
+            console.log('Effect ID:', id);
+            return id;
+        }
+
+        // ==================== COMANDOS ====================
+        async function sendSysex(hexString) {
+            if (!writeChar) {
+                log('Não conectado ao dispositivo', 'error');
+                return;
+            }
+            
+            try {
+                let hex = hexString.trim().replace(/[^0-9a-fA-F]/g, '');
+                const bytes = [];
+                for (let i = 0; i < hex.length; i += 2) {
+                    bytes.push(parseInt(hex.substr(i, 2), 16));
+                }
+                
+                const data = new Uint8Array(bytes);
+                await writeChar.writeValueWithoutResponse(data);
+            } catch (error) {
+                log('Erro ao enviar comando: ' + error.message, 'error');
+            }
+        }
+
+        function sendParamChange(blockId, paramIndex, value) {
+            // If in USB mode, try to map parameter change to a CC command (best-effort)
+            if (connectionMode === 'usb' && midiOut && CC_COMMANDS && CC_COMMANDS.commands) {
+                const params = CC_COMMANDS.commands.params || [];
+                const patchVol = params.find(p => p.key === 'patch_volume');
+                if (patchVol) {
+                    const val = clamp(Math.round(value), patchVol.min ?? 0, patchVol.max ?? 127);
+                    const channel = CC_COMMANDS.midi_channel_indexed_from_zero || 0;
+                    midiOut.send([0xB0 | channel, clamp(patchVol.cc, 0, 127), clamp(val, 0, 127)]);
+                    log(`USB CC sent: ${patchVol.label} (CC#${patchVol.cc}) => ${val}`);
+                    return;
+                }
+            }
+
+            // Fallback to Bluetooth sysex command
+            const floatHex = floatToHexBytes(value).join('');
+            const command = gp5Config.block_commands.change_parameter.command_template
+                .replace('{BLOCK}', blockId.toString(16).padStart(2, '0'))
+                .replace('{PARAM_NUM}', paramIndex.toString(16).padStart(2, '0'))
+                .replace('{VALUE_FLOAT_HEX}', floatHex);
+            
+            const crc = crc8(hexStringToBytes(command));
+            const final = addzero(crc.toString(16).padStart(2, '0').toUpperCase() + command);
+            sendSysex('8080F0' + final + 'F7');
+        }
+
+        function sendBlockStatus(blockId, status) {
+            console.log('[sendBlockStatus] Called with:', { blockId, status, connectionMode });
+            
+            // If USB mode, map block toggle to module CC if available
+            if (connectionMode === 'usb' && midiOut && CC_COMMANDS && CC_COMMANDS.commands) {
+                const block = gp5Config.blocks.find(b => b.id === blockId);
+                console.log('[sendBlockStatus] Block found:', block);
+                
+                if (block) {
+                    // Try to find module by name key
+                    const moduleMap = CC_COMMANDS.commands.modules.find(m => 
+                        m.key === block.name || 
+                        m.label.toLowerCase() === block.label.toLowerCase()
+                    );
+                    console.log('[sendBlockStatus] Module mapping:', moduleMap);
+                    
+                    if (moduleMap) {
+                        const val = (status === '1') ? 127 : 0;
+                        const channel = CC_COMMANDS.midi_channel_indexed_from_zero || 0;
+                        const ccMessage = [0xB0 | channel, clamp(moduleMap.cc, 0, 127), val];
+                        console.log('[sendBlockStatus] Sending MIDI CC:', ccMessage);
+                        
+                        midiOut.send(ccMessage);
+                        
+                        // update local state and UI
+                        deviceState.blocks[block.name] = deviceState.blocks[block.name] || {};
+                        deviceState.blocks[block.name].enabled = (val >= 64);
+                        updateBlocksStatus();
+                        log(`USB CC sent: ${moduleMap.label} (CC#${moduleMap.cc}) => ${val >= 64 ? 'ON' : 'OFF'}`);
+                        return;
+                    } else {
+                        log(`No CC mapping found for block: ${block.label} (name: ${block.name})`, 'info');
+                    }
+                }
+            }
+
+            // Bluetooth mode
+            const command = gp5Config.block_commands.toggle_block.command_template
+                .replace('{EFFECT}', blockId.toString())
+                .replace('{STATUS}', status);
+            
+            const crc = crc8(hexStringToBytes(command));
+            const final = addzero(crc.toString(16).padStart(2, '0').toUpperCase() + command);
+            sendSysex('8080F0' + final + 'F7');
+        }
+
+        function sendBlockChange(blockId, effectId) {
+            // Changing effect is not generally mappable to a single CC; if in USB mode, log and fallback.
+            if (connectionMode === 'usb') {
+                log('Block change requested (USB mode) — operation not supported via simple CC mapping. Use Bluetooth for detailed effect changes.', 'info');
+                return;
+            }
+
+            const command = gp5Config.block_commands.change_effect.command_template
+                .replace(/\{BLOCK\}/g, blockId.toString())
+                .replace('{EFFECT_ID}', effectId);
+            
+            const crc = crc8(hexStringToBytes(command));
+            const final = addzero(crc.toString(16).padStart(2, '0').toUpperCase() + command);
+            sendSysex('8080F0' + final + 'F7');
+        }
+
+        async function changePatch() {
+            const patchNum = parseInt(document.getElementById('patchSelect').value);
+            console.log('[changePatch] Called with patch:', patchNum, 'Mode:', connectionMode);
+
+            if (connectionMode === 'usb' && midiOut && CC_COMMANDS && CC_COMMANDS.commands) {
+                const presetCC = CC_COMMANDS.commands.presetSelect;
+                console.log('[changePatch] USB mode - presetCC config:', presetCC);
+                
+                if (presetCC && typeof presetCC.cc === 'number') {
+                    const channel = CC_COMMANDS.midi_channel_indexed_from_zero || 0;
+                    const ccMessage = [0xB0 | channel, clamp(presetCC.cc, 0, 127), clamp(patchNum, 0, 127)];
+                    console.log('[changePatch] Sending MIDI CC:', ccMessage);
+                    
+                    midiOut.send(ccMessage);
+                    deviceState.blocks = {};
+                    deviceState.currentPatch = patchNum;
+                    log(`USB CC sent: ${presetCC.label} (CC#${presetCC.cc}) => ${patchNum}`);
+                    return;
+                }
+            }
+
+            // Bluetooth mode
+            const command = gp5Config.patch_commands.change_patch.command_template
+                .replace('{PATCH}', patchNum.toString(16).padStart(2, '0'));
+            
+            const crc = crc8(hexStringToBytes(command));
+            const final = addzero(crc.toString(16).padStart(2, '0').toUpperCase() + command);
+            await sendSysex('8080F0' + final + 'F7');
+            
+            // Clear block state
+            deviceState.blocks = {};
+            deviceState.currentPatch = patchNum;
+            
+            // Wait a bit for device to process
+            await sleep(200);
+            
+            // Request new patch data
+            log('Loading patch ' + patchNum + '...');
+            await sendSysex(gp5Config.sync_commands.request_patch_data.sysex);
+        }
+
+        function navigatePatch(direction) {
+            const select = document.getElementById('patchSelect');
+            console.log('[navigatePatch] Called with direction:', direction, 'Mode:', connectionMode);
+            
+            if (connectionMode === 'usb' && midiOut && CC_COMMANDS && CC_COMMANDS.commands) {
+                // In USB mode, use prev/next CC if available, or calculate preset number
+                const currentPatch = deviceState.currentPatch || parseInt(select.value) || 0;
+                const newPatch = clamp(currentPatch + direction, 0, 99);
+                console.log('[navigatePatch] USB mode - current:', currentPatch, 'new:', newPatch);
+                
+                // Could use patchPrev/patchNext CC or just send preset directly
+                const presetCC = CC_COMMANDS.commands.presetSelect;
+                if (presetCC && typeof presetCC.cc === 'number') {
+                    const channel = CC_COMMANDS.midi_channel_indexed_from_zero || 0;
+                    const ccMessage = [0xB0 | channel, clamp(presetCC.cc, 0, 127), clamp(newPatch, 0, 127)];
+                    console.log('[navigatePatch] Sending MIDI CC:', ccMessage);
+                    
+                    midiOut.send(ccMessage);
+                    deviceState.currentPatch = newPatch;
+                    if (select && select.options.length > newPatch) {
+                        select.value = newPatch;
+                    }
+                    log(`USB CC sent: Preset => ${newPatch}`);
+                    return;
+                }
+            }
+            
+            // Bluetooth mode or fallback
+            let newIndex = select.selectedIndex + direction;
+            
+            if (newIndex < 0) newIndex = select.options.length - 1;
+            if (newIndex >= select.options.length) newIndex = 0;
+            
+            select.selectedIndex = newIndex;
+            changePatch();
+        }
+
+        // ==================== UTILIDADES ====================
+        function clamp(v, min = 0, max = 127) {
+            return Math.min(max, Math.max(min, v | 0));
+        }
+
+        function crc8(bytes) {
+            let crc = 0x00;
+            for (let i = 0; i < bytes.length; i++) {
+                let cur = bytes[i] & 0xFF;
+                crc ^= cur;
+                for (let j = 0; j < 8; j++) {
+                    if ((crc & 0x80) !== 0) {
+                        crc = ((crc << 1) ^ 0x07) & 0xFF;
+                    } else {
+                        crc = (crc << 1) & 0xFF;
+                    }
+                }
+            }
+            return crc & 0xFF;
+        }
+
+        function hexStringToBytes(hexString) {
+            const bytes = [];
+            hexString = hexString.replace(/\s+/g, '');
+            for (let i = 0; i < hexString.length; i += 2) {
+                bytes.push(parseInt(hexString.substr(i, 2), 16));
+            }
+            return bytes;
+        }
+
+        function addzero(str) {
+            let newString = '';
+            for (let i = 0; i < str.length; i++) {
+                newString += '0' + str[i];
+            }
+            return newString;
+        }
+
+        function floatToHexBytes(value) {
+            const buffer = new ArrayBuffer(4);
+            const view = new DataView(buffer);
+            view.setFloat32(0, value, true);
+            return Array.from(new Uint8Array(buffer))
+                .map(b => b.toString(16).padStart(2, '0'));
+        }
+
+        function parsePatchNames(bytes) {
+            const getName = (bytes, start) => {
+                let name = '';
+                for (let i = 0; i < 20; i += 2) {
+                    const charCode = bytes[i + start] * 16 + bytes[i + start + 1];
+                    name += String.fromCharCode(charCode);
+                }
+                return name.trim();
+            };
+            
+            const index = (bytes[7] * 16 + bytes[8]) * 5;
+            deviceState.patchNames[index] = getName(bytes, 23);
+            deviceState.patchNames[index + 1] = getName(bytes, 63);
+            deviceState.patchNames[index + 2] = getName(bytes, 103);
+            deviceState.patchNames[index + 3] = getName(bytes, 143);
+            deviceState.patchNames[index + 4] = getName(bytes, 183);
+        }
+
+        function populatePatchList() {
+            const select = document.getElementById('patchSelect');
+            select.innerHTML = '';
+            
+            deviceState.patchNames.forEach((name, index) => {
+                if (name) {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${index} - ${name}`;
+                    select.appendChild(option);
+                }
+            });
+            
+            log(`${deviceState.patchNames.length} patches loaded`);
+        }
+
+        function updateBlocksStatus() {
+            gp5Config.blocks.forEach(block => {
+                const btn = document.getElementById(`block-${block.name}`);
+                const blockState = deviceState.blocks[block.name];
+                const enabled = blockState?.enabled || false;
+                
+                if (btn) {
+                    // Update color and status
+                    if (enabled) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                    
+                    // Update text with effect name if available
+                    const effectName = blockState?.effectName || '';
+                    const statusText = enabled ? 'ON' : 'OFF';
+                    
+                    btn.innerHTML = `
+                        <div class="block-label">${block.label}</div>
+                        <div class="block-effect">${effectName || statusText}</div>
+                    `;
+                    
+                    console.log(`Block ${block.name}: ${enabled ? 'ON' : 'OFF'}, Effect: ${effectName}`);
+                }
+            });
+        }
+
+        function updateConnectionStatus(connected) {
+            const btn = document.getElementById('btnConnect');
+            const status = document.getElementById('connectionStatus');
+            
+            if (connected) {
+                status.textContent = '🟢';
+                btn.textContent = '';
+                if (connectionMode === 'bluetooth' && device) {
+                    btn.innerHTML = `<span id="connectionStatus">🟢</span> ${device.name || 'GP5'}`;
+                } else if (connectionMode === 'usb' && midiOut) {
+                    btn.innerHTML = `<span id="connectionStatus">🟢</span> ${midiOut.name || 'USB MIDI'}`;
+                } else {
+                    btn.innerHTML = `<span id="connectionStatus">🟢</span> Connected`;
+                }
+            } else {
+                status.textContent = '⚫';
+                btn.textContent = '';
+                btn.innerHTML = `<span id="connectionStatus">⚫</span> Connect`;
+            }
+        }
+
+        function enableControls(enabled) {
+            document.getElementById('patchSelect').disabled = !enabled;
+            document.getElementById('btnPrevPatch').disabled = !enabled;
+            document.getElementById('btnNextPatch').disabled = !enabled;
+            
+            document.querySelectorAll('.block-btn').forEach(btn => {
+                btn.disabled = !enabled;
+            });
+        }
+
+        function log(message, type = 'info') {
+            const statusText = document.getElementById('statusText');
+            const spinner = document.getElementById('spinner');
+            const timestamp = new Date().toLocaleTimeString();
+            statusText.textContent = `[${timestamp}] ${message}`;
+            
+            console.log(`[GP5] ${message}`);
+        }
+
+        function showLoading(show) {
+            const spinner = document.getElementById('spinner');
+            if (show) {
+                spinner.classList.add('active');
+            } else {
+                spinner.classList.remove('active');
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ==================== INICIALIZAÇÃO ====================
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>

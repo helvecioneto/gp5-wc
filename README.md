@@ -1,10 +1,11 @@
 # 🎸 GP-5 Web Controller
 
-A web-based MIDI controller for the **Valeton GP-5** multi-effects pedal. Control your GP-5 directly from your browser using Web MIDI API - no additional software required!
+A web-based controller for the **Valeton GP-5** multi-effects pedal with **dual-mode support**: Bluetooth (advanced) and USB MIDI (basic). Control your GP-5 directly from your browser - no additional software required!
 
 ![GP-5 Web Controller](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Web MIDI](https://img.shields.io/badge/Web%20MIDI-API-orange.svg)
+![Web Bluetooth](https://img.shields.io/badge/Web%20Bluetooth-API-blue.svg)
 
 ## 📸 Web Example [https://helvecioneto.github.io/gp5-wc/](https://helvecioneto.github.io/gp5-wc/)
 
@@ -15,30 +16,44 @@ A web-based MIDI controller for the **Valeton GP-5** multi-effects pedal. Contro
 
 ## ✨ Features
 
-- 🎚️ **Preset Management**: Navigate through presets 00-99 with intuitive controls
+### 🔌 Dual Connection Mode
+- **Bluetooth Mode** (Advanced): Full control via Web Bluetooth + SysEx
+- **USB MIDI Mode** (Basic): Simple control via Web MIDI + Control Change
+
+### Common Features
+- 🎚️ **Preset Management**: Navigate through presets 00-99
 - 🎛️ **Module Control**: Toggle all 10 effect modules (NR, PRE, DST, N→S, AMP, CAB, EQ, MOD, DLY, RVB)
-- 🎼 **Built-in Tuner**: Quick access to the GP-5 tuner
+- 🎼 **Built-in Tuner**: Quick access to the GP-5 tuner (USB mode)
 - 🎵 **Parameter Control**: Adjust patch volume in real-time
-- 💾 **State Persistence**: Remembers your last settings using localStorage
-- 🛠️ **Customizable CC Map**: Edit MIDI CC mappings via JSON editor
+- 💾 **State Persistence**: Remembers your last settings
+- 🛠️ **Customizable**: Edit MIDI CC mappings via JSON
+
+### Bluetooth Mode Only
+- 📋 **Patch Names**: Load and display custom patch names
+- 🎨 **Effect Selection**: Change individual effects within blocks
+- 🎛️ **Advanced Parameters**: Full access to all effect parameters
+- 🔄 **Bidirectional Sync**: Automatic state synchronization
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- A modern web browser with Web MIDI API support (Chrome, Edge, Opera)
+- A modern web browser:
+  - **For Bluetooth**: Chrome, Edge, Opera (with flag enabled)
+  - **For USB MIDI**: Chrome, Edge, Opera
 - Valeton GP-5 multi-effects pedal
-- USB cable to connect GP-5 to your computer
+- USB cable (for USB mode) or Bluetooth connection (for BT mode)
 
 ### Usage
 
+#### Option 1: Online (Bluetooth Mode)
 1. **Access the controller**: [https://helvecioneto.github.io/gp5-wc/](https://helvecioneto.github.io/gp5-wc/)
-2. **Connect your GP-5** via USB to your computer
-3. Click **"Connect GP-5"** button
-4. Start controlling your pedal! 🎉
+2. Select **Bluetooth** mode
+3. Click **"Connect"** button
+4. Pair with your GP-5
+5. Start controlling! 🎉
 
-### Running Locally
-
+#### Option 2: Local (USB MIDI Mode - Recommended for testing)
 ```bash
 # Clone the repository
 git clone https://github.com/helvecioneto/gp5-wc.git
@@ -46,8 +61,38 @@ git clone https://github.com/helvecioneto/gp5-wc.git
 # Navigate to the project folder
 cd gp5-wc
 
-# Open test.html in your browser
-# Or serve with a local server:
+# Start a local HTTP server (required for file loading)
+python3 -m http.server 8000
+
+# Open in browser
+# http://localhost:8000/gp5-controller.html
+```
+
+**Important**: Don't open files directly with `file://` - use a local server!
+
+### Selecting Connection Mode
+
+1. Open `gp5-controller.html`
+2. Look for the dropdown in the top-right corner
+3. Select **Bluetooth** or **USB**
+4. Click **Connect**
+
+## 🐛 Debugging
+
+Open the browser **Console** (F12) to see detailed logs:
+- `[init]` - Configuration loading
+- `[connectMidi]` - MIDI connection
+- `[listMidiPorts]` - Detected MIDI ports
+- `[sendBlockStatus]` - Module commands
+- `[changePatch]` - Patch changes
+
+## 📦 Project Files
+
+- `gp5-controller.html` - Main interface (dual-mode support)
+- `index.html` - Legacy USB-only version
+- `ble_sysex.json` - Bluetooth/SysEx configuration
+- `cc_commands.json` - MIDI CC mapping
+- `README.md` - This file
 python -m http.server 8000
 # Then open http://localhost:8000/test.html
 ```
